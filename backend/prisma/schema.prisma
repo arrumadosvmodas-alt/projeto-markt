@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  cpf          String     @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime   @default(now())
+  purchases    Purchase[]
+  markets      Market[]   @relation("MarketCreatedBy")
+}
+
+model Market {
+  id              String     @id @default(cuid())
+  name            String
+  address         String?
+  lat             Float?
+  lng             Float?
+  source          String // "osm" | "manual"
+  externalId      String?
+  createdByUserId String?
+  createdBy       User?      @relation("MarketCreatedBy", fields: [createdByUserId], references: [id])
+  purchases       Purchase[]
+  createdAt       DateTime   @default(now())
+
+  @@index([createdByUserId])
+}
+
+model Purchase {
+  id           String         @id @default(cuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+  marketId     String
+  market       Market         @relation(fields: [marketId], references: [id])
+  budgetLimit  Float?
+  status       String         @default("open") // "open" | "completed"
+  totalAmount  Float          @default(0)
+  startedAt    DateTime       @default(now())
+  completedAt  DateTime?
+  items        PurchaseItem[]
+
+  @@index([userId, status])
+  @@index([userId, completedAt])
+}
+
+model Product {
+  id        String         @id @default(cuid())
+  barcode   String         @unique
+  name      String
+  brand     String?
+  category  String?
+  imageUrl  String?
+  source    String // "openfoodfacts" | "manual"
+  createdAt DateTime       @default(now())
+  items     PurchaseItem[]
+
+  @@index([category])
+}
+
+model PurchaseItem {
+  id         String   @id @default(cuid())
+  purchaseId String
+  purchase   Purchase @relation(fields: [purchaseId], references: [id])
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  price      Float
+  quantity   Float
+  subtotal   Float
+  createdAt  DateTime @default(now())
+
+  @@index([productId, createdAt])
+  @@index([purchaseId])
+}

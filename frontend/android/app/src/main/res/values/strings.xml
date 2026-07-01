@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Markt</string>
+    <string name="title_activity_main">Markt</string>
+    <string name="package_name">com.projeto.markt</string>
+    <string name="custom_url_scheme">com.projeto.markt</string>
+</resources>
