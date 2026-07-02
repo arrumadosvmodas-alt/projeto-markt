@@ -29,6 +29,8 @@ router.get("/nearby", async (req, res) => {
 const manualSchema = z.object({
   name: z.string().min(2),
   address: z.string().optional(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
 });
 
 router.post("/manual", async (req: AuthedRequest, res) => {
@@ -50,6 +52,8 @@ router.post("/manual", async (req: AuthedRequest, res) => {
     data: {
       name: parsed.data.name,
       address: parsed.data.address ?? null,
+      lat: parsed.data.lat ?? null,
+      lng: parsed.data.lng ?? null,
       source: "manual",
       createdByUserId: req.userId,
     },
