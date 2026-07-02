@@ -239,4 +239,31 @@ router.post("/:id/complete", async (req: AuthedRequest, res) => {
   res.json({ purchase: updated });
 });
 
+router.delete("/:id", async (req: AuthedRequest, res) => {
+  try {
+    const purchaseId = req.params.id;
+
+    // Primeiro deleta todos os itens da compra para evitar erros de chave estrangeira
+    await prisma.purchaseItem.deleteMany({
+      where: {
+        purchaseId,
+        purchase: { userId: req.userId }
+      }
+    });
+
+    // Depois deleta a compra em si
+    await prisma.purchase.delete({
+      where: {
+        id: purchaseId,
+        userId: req.userId!
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("Erro ao deletar compra:", error);
+    res.status(500).json({ error: error.message ?? "Erro ao deletar compra" });
+  }
+});
+
 export default router;

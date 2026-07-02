@@ -44,6 +44,7 @@ export default function Home() {
       purchase={purchase}
       onChange={setPurchase}
       onCompleted={(id) => navigate(`/historico/${id}`, { replace: true })}
+      onCanceled={() => setPurchase(null)}
     />
   );
 }

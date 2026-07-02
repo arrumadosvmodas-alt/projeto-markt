@@ -18,10 +18,12 @@ export default function ActivePurchase({
   purchase,
   onChange,
   onCompleted,
+  onCanceled,
 }: {
   purchase: Purchase;
   onChange: (purchase: Purchase) => void;
   onCompleted: (purchaseId: string) => void;
+  onCanceled: () => void;
 }) {
   const [step, setStep] = useState<Step>({ kind: "idle" });
   const [lastComparison, setLastComparison] = useState<{
@@ -99,9 +101,37 @@ export default function ActivePurchase({
     }
   }
 
+  async function handleCancelPurchase() {
+    const confirmed = window.confirm(
+      "Tem certeza que deseja desistir desta compra? Todos os itens adicionados serão perdidos e esta compra não constará no seu histórico."
+    );
+    if (!confirmed) return;
+
+    try {
+      await api.delete(`/purchases/${purchase.id}`);
+      onCanceled();
+    } catch {
+      setError("Não foi possível cancelar a compra.");
+    }
+  }
+
   return (
     <div className="mx-auto max-w-md px-4 py-8">
-      <PageHeader title={purchase.market.name} subtitle={`${purchase.items.length} itens na compra`} />
+      <div className="flex items-start justify-between gap-4 mb-2">
+        <div className="flex-1 min-w-0">
+          <PageHeader title={purchase.market.name} subtitle={`${purchase.items.length} itens na compra`} />
+        </div>
+        <Button
+          variant="ghost"
+          onClick={handleCancelPurchase}
+          className="text-clay-600 hover:text-clay-700 hover:bg-clay-50 font-semibold text-xs px-2.5 py-1.5 border border-clay-200/50 rounded-xl shrink-0 mt-1"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5">
+            <path d="M19 12H5M5 12l6-6M5 12l6 6" />
+          </svg>
+          Voltar / Desistir
+        </Button>
+      </div>
 
       <Card className="p-4">
         <BudgetBar total={purchase.totalAmount} budgetLimit={purchase.budgetLimit} />
