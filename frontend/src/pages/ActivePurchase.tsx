@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../lib/api";
 import type { Product, Purchase, PriceComparison, PurchaseItem } from "../lib/types";
 import { Scanner } from "../components/Scanner";
@@ -8,6 +8,10 @@ import { Button, Card, PageHeader, TextInput, formatBRL } from "../components/ui
 
 type Step =
   | { kind: "idle" }
+  | { kind: "adding-choice" }
+  | { kind: "typing-code" }
+  | { kind: "searching-name" }
+  | { kind: "paying" }
   | { kind: "scanning" }
   | { kind: "looking-up"; barcode: string }
   | { kind: "manual-product"; barcode: string }
@@ -90,10 +94,13 @@ export default function ActivePurchase({
     }
   }
 
-  async function completePurchase() {
+  async function completePurchase(paymentMethod: string, paymentDetails?: string) {
     setCompleting(true);
     try {
-      await api.post(`/purchases/${purchase.id}/complete`);
+      await api.post(`/purchases/${purchase.id}/complete`, {
+        paymentMethod,
+        paymentDetails,
+      });
       onCompleted(purchase.id);
     } catch {
       setError("Não foi possível finalizar a compra.");
@@ -151,7 +158,7 @@ export default function ActivePurchase({
 
       <Button
         className="mt-5 w-full shadow-md shadow-forest-600/10"
-        onClick={() => setStep({ kind: "scanning" })}
+        onClick={() => setStep({ kind: "adding-choice" })}
         disabled={step.kind !== "idle"}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4">
@@ -243,15 +250,96 @@ export default function ActivePurchase({
         </div>
       )}
 
-      <Button
-        variant="secondary"
-        className="mt-8 w-full border border-forest-100"
-        onClick={completePurchase}
-        disabled={completing || purchase.items.length === 0}
-      >
-        {completing ? "Finalizando..." : "Finalizar compra"}
-      </Button>
+      {step.kind === "idle" && (
+        <Button
+          variant="secondary"
+          className="mt-8 w-full border border-forest-100 shadow-sm"
+          onClick={() => setStep({ kind: "paying" })}
+          disabled={completing || purchase.items.length === 0}
+        >
+          Finalizar compra
+        </Button>
+      )}
 
+
+      {step.kind === "adding-choice" && (
+        <Card className="mt-4 p-4 border border-cream-200 bg-white">
+          <p className="font-bold text-graphite-900 mb-3">Como deseja adicionar o item?</p>
+          <div className="flex flex-col gap-2">
+            <Button onClick={() => setStep({ kind: "scanning" })} className="w-full">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              Ler código de barras (Câmera)
+            </Button>
+            <Button onClick={() => setStep({ kind: "typing-code" })} variant="secondary" className="w-full border border-forest-100">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                <path d="M3 5h18M3 10h18M3 15h18M3 20h18" />
+              </svg>
+              Digitar número do código de barras
+            </Button>
+            <Button onClick={() => setStep({ kind: "searching-name" })} variant="secondary" className="w-full border border-forest-100">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              Digitar nome do item
+            </Button>
+            <Button onClick={() => setStep({ kind: "idle" })} variant="ghost" className="w-full text-graphite-500">
+              Cancelar
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {step.kind === "typing-code" && (
+        <Card className="mt-4 p-4 border border-cream-200 bg-white">
+          <p className="font-bold text-graphite-900 mb-3">Digitar código de barras</p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const code = (e.currentTarget.elements.namedItem("barcode") as HTMLInputElement).value;
+              if (code.trim()) handleBarcode(code.trim());
+            }}
+            className="space-y-3"
+          >
+            <TextInput
+              label="Código de barras"
+              name="barcode"
+              type="text"
+              inputMode="numeric"
+              placeholder="Ex: 7891000100103"
+              autoFocus
+              required
+            />
+            <div className="flex gap-2">
+              <Button type="submit" className="flex-1">
+                Buscar Produto
+              </Button>
+              <Button type="button" variant="ghost" onClick={() => setStep({ kind: "adding-choice" })}>
+                Voltar
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
+
+      {step.kind === "searching-name" && (
+        <SearchingNameForm
+          onSelectProduct={(product) => setStep({ kind: "price-quantity", product })}
+          onCancel={() => setStep({ kind: "adding-choice" })}
+        />
+      )}
+
+      {step.kind === "paying" && (
+        <PaymentForm
+          totalAmount={purchase.totalAmount}
+          onConfirm={(method, details) => completePurchase(method, details)}
+          onCancel={() => setStep({ kind: "idle" })}
+          loading={completing}
+        />
+      )}
 
       {step.kind === "scanning" && (
         <Scanner onDetected={handleBarcode} onClose={() => setStep({ kind: "idle" })} />
@@ -450,4 +538,294 @@ function EditIcon() {
     </svg>
   );
 }
+
+function SearchingNameForm({
+  onSelectProduct,
+  onCancel,
+}: {
+  onSelectProduct: (product: Product) => void;
+  onCancel: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) {
+      setResults([]);
+      return;
+    }
+    setLoading(true);
+    const handler = setTimeout(() => {
+      api.get<{ products: Product[] }>(`/products/search?q=${encodeURIComponent(q)}`)
+        .then((data) => setResults(data.products))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [query]);
+
+  async function handleCreateProduct(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newName.trim()) return;
+    setLoading(true);
+    const virtualBarcode = "manual-" + Date.now();
+    try {
+      const data = await api.post<{ product: Product }>("/products/manual", {
+        barcode: virtualBarcode,
+        name: newName.trim(),
+        category: newCategory.trim() || undefined,
+      });
+      onSelectProduct(data.product);
+    } catch {
+      alert("Erro ao criar produto.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (creating) {
+    return (
+      <Card className="mt-4 p-4 border border-cream-200 bg-white">
+        <p className="font-bold text-graphite-900 mb-3">Cadastrar Novo Produto</p>
+        <form onSubmit={handleCreateProduct} className="space-y-3">
+          <TextInput
+            label="Nome do produto"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Ex: Alface Crespa"
+            autoFocus
+            required
+          />
+          <TextInput
+            label="Categoria (opcional)"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            placeholder="Ex: Hortifruti"
+          />
+          <div className="flex gap-2">
+            <Button type="submit" disabled={loading} className="flex-1">
+              Cadastrar e Avançar
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setCreating(false)}>
+              Voltar
+            </Button>
+          </div>
+        </form>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="mt-4 p-4 border border-cream-200 bg-white">
+      <p className="font-bold text-graphite-900 mb-2">Digitar nome do item</p>
+      <TextInput
+        label="Pesquisar produto"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Ex: Arroz Tio João"
+        autoFocus
+      />
+
+      {loading && (
+        <p className="text-xs text-graphite-400 mt-2">Pesquisando...</p>
+      )}
+
+      {query.trim() && results.length > 0 && (
+        <ul className="mt-3 divide-y divide-cream-100 border border-cream-100 rounded-xl overflow-hidden bg-white max-h-48 overflow-y-auto shadow-sm">
+          {results.map((p) => (
+            <li key={p.id}>
+              <button
+                type="button"
+                onClick={() => onSelectProduct(p)}
+                className="w-full px-4 py-2.5 text-left text-sm font-semibold text-graphite-800 hover:bg-forest-50 hover:text-forest-700 transition cursor-pointer"
+              >
+                {p.name} {p.brand ? `(${p.brand})` : ""}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {query.trim() && results.length === 0 && !loading && (
+        <div className="mt-3 p-3 bg-cream-50 rounded-xl border border-cream-200/60 text-center animate-fade-in">
+          <p className="text-xs text-graphite-500 mb-2">Nenhum produto encontrado com este nome.</p>
+          <Button
+            type="button"
+            variant="secondary"
+            className="text-xs py-2 px-3 border border-forest-200"
+            onClick={() => {
+              setNewName(query);
+              setCreating(true);
+            }}
+          >
+            Cadastrar "{query}" como Novo Produto
+          </Button>
+        </div>
+      )}
+
+      <div className="mt-4 flex gap-2">
+        <Button
+          type="button"
+          variant="secondary"
+          className="flex-1 border border-forest-100 text-xs py-2"
+          onClick={() => setCreating(true)}
+        >
+          Cadastrar Novo Produto do Zero
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className="text-xs py-2"
+          onClick={onCancel}
+        >
+          Voltar
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function PaymentForm({
+  totalAmount,
+  onConfirm,
+  onCancel,
+  loading,
+}: {
+  totalAmount: number;
+  onConfirm: (method: string, details?: string) => void;
+  onCancel: () => void;
+  loading: boolean;
+}) {
+  const [method, setMethod] = useState<"a_vista" | "credito" | "alimentacao" | "misto">("a_vista");
+
+  const [cashVal, setCashVal] = useState("");
+  const [creditVal, setCreditVal] = useState("");
+  const [voucherVal, setVoucherVal] = useState("");
+
+  const cash = Number(cashVal) || 0;
+  const credit = Number(creditVal) || 0;
+  const voucher = Number(voucherVal) || 0;
+
+  const currentTotal = cash + credit + voucher;
+  const remaining = totalAmount - currentTotal;
+  const isComplete = method === "misto" ? Math.abs(remaining) < 0.01 : true;
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!isComplete) return;
+
+    if (method === "misto") {
+      const detailsList: string[] = [];
+      if (cash > 0) detailsList.push(`${formatBRL(cash)} À vista`);
+      if (credit > 0) detailsList.push(`${formatBRL(credit)} Crédito`);
+      if (voucher > 0) detailsList.push(`${formatBRL(voucher)} Alimentação`);
+      onConfirm("misto", detailsList.join(", "));
+    } else {
+      onConfirm(method);
+    }
+  }
+
+  return (
+    <Card className="mt-4 p-4 border border-cream-200 bg-white">
+      <div className="mb-3">
+        <p className="font-bold text-graphite-900">Finalizar Compra</p>
+        <p className="text-xs font-semibold text-graphite-500">Valor Total: {formatBRL(totalAmount)}</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <span className="block text-sm font-semibold text-graphite-700">Forma de pagamento</span>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { id: "a_vista", label: "À vista / Débito" },
+              { id: "credito", label: "Crédito" },
+              { id: "alimentacao", label: "Alimentação" },
+              { id: "misto", label: "Misto (Várias)" },
+            ].map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setMethod(opt.id as any)}
+                className={`px-3 py-2.5 text-xs font-bold border rounded-xl transition cursor-pointer ${
+                  method === opt.id
+                    ? "bg-forest-600 border-forest-600 text-white shadow-sm"
+                    : "bg-white border-cream-200 text-graphite-700 hover:border-forest-300"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {method === "misto" && (
+          <div className="space-y-3 p-3 bg-cream-50 rounded-2xl border border-cream-200/60 animate-fade-in">
+            <p className="text-xs font-bold text-graphite-700">Distribuir pagamento:</p>
+            <div className="space-y-2">
+              <TextInput
+                label="À vista / Débito (R$)"
+                type="number"
+                inputMode="decimal"
+                min="0"
+                step="0.01"
+                value={cashVal}
+                onChange={(e) => setCashVal(e.target.value)}
+              />
+              <TextInput
+                label="Crédito (R$)"
+                type="number"
+                inputMode="decimal"
+                min="0"
+                step="0.01"
+                value={creditVal}
+                onChange={(e) => setCreditVal(e.target.value)}
+              />
+              <TextInput
+                label="Alimentação (R$)"
+                type="number"
+                inputMode="decimal"
+                min="0"
+                step="0.01"
+                value={voucherVal}
+                onChange={(e) => setVoucherVal(e.target.value)}
+              />
+            </div>
+
+            <div className="pt-2 border-t border-cream-200/80 flex items-center justify-between text-xs font-semibold">
+              <span className="text-graphite-600">Total distribuído:</span>
+              <span className="text-graphite-900 font-bold">{formatBRL(currentTotal)}</span>
+            </div>
+
+            <div className="flex items-center justify-between text-xs font-semibold">
+              <span className="text-graphite-600">Restante:</span>
+              <span className={`font-bold ${remaining > 0 ? "text-clay-600" : remaining === 0 ? "text-forest-600" : "text-amber-600"}`}>
+                {remaining > 0 ? `Falta ${formatBRL(remaining)}` : remaining === 0 ? "Valor exato!" : `Troco de ${formatBRL(Math.abs(remaining))}`}
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <Button
+            type="submit"
+            disabled={loading || !isComplete}
+            className="flex-1 shadow-md shadow-forest-600/10"
+          >
+            {loading ? "Processando..." : "Confirmar e Finalizar"}
+          </Button>
+          <Button type="button" variant="ghost" onClick={onCancel}>
+            Voltar
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+}
+
 

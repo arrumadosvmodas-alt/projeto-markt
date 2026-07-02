@@ -50,6 +50,8 @@ export interface Purchase {
   completedAt: string | null;
   market: Market;
   items: PurchaseItem[];
+  paymentMethod: string | null;
+  paymentDetails: string | null;
 }
 
 export interface PurchaseSummary {

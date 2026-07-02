@@ -50,6 +50,8 @@ router.get("/", async (req: AuthedRequest, res) => {
       itemCount: p.items.length,
       startedAt: p.startedAt,
       completedAt: p.completedAt,
+      paymentMethod: p.paymentMethod,
+      paymentDetails: p.paymentDetails,
     })),
   });
 });
@@ -222,7 +224,17 @@ router.put("/:id/items/:itemId", async (req: AuthedRequest, res) => {
   res.json({ purchase: updated });
 });
 
+const completeSchema = z.object({
+  paymentMethod: z.enum(["a_vista", "credito", "alimentacao", "misto"]),
+  paymentDetails: z.string().optional(),
+});
+
 router.post("/:id/complete", async (req: AuthedRequest, res) => {
+  const parsed = completeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Dados de pagamento inválidos" });
+  }
+
   const purchase = await prisma.purchase.findFirst({
     where: { id: req.params.id, userId: req.userId },
   });
@@ -233,7 +245,12 @@ router.post("/:id/complete", async (req: AuthedRequest, res) => {
 
   const updated = await prisma.purchase.update({
     where: { id: purchase.id },
-    data: { status: "completed", completedAt: new Date() },
+    data: {
+      status: "completed",
+      completedAt: new Date(),
+      paymentMethod: parsed.data.paymentMethod,
+      paymentDetails: parsed.data.paymentDetails ?? null,
+    },
   });
 
   res.json({ purchase: updated });

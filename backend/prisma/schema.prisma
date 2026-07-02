@@ -45,6 +45,8 @@ model Purchase {
   startedAt    DateTime       @default(now())
   completedAt  DateTime?
   items        PurchaseItem[]
+  paymentMethod String? // "a_vista" | "credito" | "alimentacao" | "misto"
+  paymentDetails String? // JSON ou texto detalhando as formas de pagamento
 
   @@index([userId, status])
   @@index([userId, completedAt])

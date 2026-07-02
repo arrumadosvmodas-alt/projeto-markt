@@ -44,6 +44,24 @@ export default function PurchaseDetail() {
             <span>{formatBRL(purchase.budgetLimit)}</span>
           </div>
         )}
+        {purchase.paymentMethod && (
+          <div className="mt-2.5 pt-2.5 border-t border-cream-100 flex flex-col gap-1 text-xs font-semibold text-graphite-500">
+            <div className="flex items-center justify-between">
+              <span>Forma de pagamento</span>
+              <span className="text-graphite-800 font-bold">
+                {purchase.paymentMethod === "a_vista" && "À vista / Débito"}
+                {purchase.paymentMethod === "credito" && "Cartão de Crédito"}
+                {purchase.paymentMethod === "alimentacao" && "Vale Alimentação"}
+                {purchase.paymentMethod === "misto" && "Misto (Múltiplas formas)"}
+              </span>
+            </div>
+            {purchase.paymentDetails && (
+              <div className="text-[10px] text-graphite-400 font-medium text-right mt-0.5 italic">
+                {purchase.paymentDetails}
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       <div className="mt-8 space-y-2.5">
