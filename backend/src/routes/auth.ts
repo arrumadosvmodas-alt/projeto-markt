@@ -25,54 +25,64 @@ function signToken(userId: string) {
 }
 
 router.post("/register", async (req, res) => {
-  const parsed = registerSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Dados inválidos" });
+  try {
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Dados inválidos" });
+    }
+
+    const { name, password } = parsed.data;
+    const cpf = normalizeCpf(parsed.data.cpf);
+
+    if (!isValidCpf(cpf)) {
+      return res.status(400).json({ error: "CPF inválido" });
+    }
+
+    const existing = await prisma.user.findUnique({ where: { cpf } });
+    if (existing) {
+      return res.status(409).json({ error: "CPF já cadastrado" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+      data: { cpf, name, passwordHash },
+    });
+
+    const token = signToken(user.id);
+    res.status(201).json({
+      token,
+      user: { id: user.id, name: user.name, cpf: user.cpf },
+    });
+  } catch (error: any) {
+    console.error("Erro no registro:", error);
+    res.status(500).json({ error: error.message ?? "Erro interno no servidor" });
   }
-
-  const { name, password } = parsed.data;
-  const cpf = normalizeCpf(parsed.data.cpf);
-
-  if (!isValidCpf(cpf)) {
-    return res.status(400).json({ error: "CPF inválido" });
-  }
-
-  const existing = await prisma.user.findUnique({ where: { cpf } });
-  if (existing) {
-    return res.status(409).json({ error: "CPF já cadastrado" });
-  }
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
-    data: { cpf, name, passwordHash },
-  });
-
-  const token = signToken(user.id);
-  res.status(201).json({
-    token,
-    user: { id: user.id, name: user.name, cpf: user.cpf },
-  });
 });
 
 router.post("/login", async (req, res) => {
-  const parsed = loginSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Dados inválidos" });
-  }
+  try {
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Dados inválidos" });
+    }
 
-  const cpf = normalizeCpf(parsed.data.cpf);
-  const user = await prisma.user.findUnique({ where: { cpf } });
-  if (!user) {
-    return res.status(401).json({ error: "CPF ou senha incorretos" });
-  }
+    const cpf = normalizeCpf(parsed.data.cpf);
+    const user = await prisma.user.findUnique({ where: { cpf } });
+    if (!user) {
+      return res.status(401).json({ error: "CPF ou senha incorretos" });
+    }
 
-  const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
-  if (!valid) {
-    return res.status(401).json({ error: "CPF ou senha incorretos" });
-  }
+    const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
+    if (!valid) {
+      return res.status(401).json({ error: "CPF ou senha incorretos" });
+    }
 
-  const token = signToken(user.id);
-  res.json({ token, user: { id: user.id, name: user.name, cpf: user.cpf } });
+    const token = signToken(user.id);
+    res.json({ token, user: { id: user.id, name: user.name, cpf: user.cpf } });
+  } catch (error: any) {
+    console.error("Erro no login:", error);
+    res.status(500).json({ error: error.message ?? "Erro interno no servidor" });
+  }
 });
 
 router.get("/me", async (req, res) => {
