@@ -9,12 +9,7 @@ import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
-import { CircleDashboard } from "./pages/CircleDashboard";
-import { CreateCircle } from "./pages/CreateCircle";
-import { SharedLists } from "./pages/SharedLists";
 import { Calendar } from "./pages/Calendar";
-import { Tasks } from "./pages/Tasks";
-import { Chat } from "./pages/Chat";
 import "./styles/design-system.css";
 
 function App() {
@@ -25,38 +20,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
 
-        {/* Família & Círculos */}
-        <Route
-          path="/circles"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <CircleDashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/circles/new"
-          element={
-            <ProtectedRoute>
-              <CreateCircle onBack={() => window.history.back()} />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Listas Compartilhadas */}
-        <Route
-          path="/listas"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <SharedLists />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
         {/* Calendário */}
         <Route
           path="/calendario"
@@ -64,30 +27,6 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <Calendar />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Tarefas */}
-        <Route
-          path="/tarefas"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Tasks />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Chat */}
-        <Route
-          path="/chat"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Chat />
               </Layout>
             </ProtectedRoute>
           }
