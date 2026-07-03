@@ -3,47 +3,47 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* PRIMARY COLORS — Revolut Cobalt Violet */
-  --color-primary: #494FDF;
-  --color-primary-light: #5F65EB;
-  --color-primary-dark: #3C42C4;
+  /* PRIMARY COLORS — Dynamic */
+  --color-primary: var(--color-forest-600);
+  --color-primary-light: var(--color-forest-300);
+  --color-primary-dark: var(--color-forest-700);
 
   /* ACCENT COLORS */
-  --color-accent-red: #E23B4A;        /* Spend alerts */
-  --color-accent-green: #00A87E;      /* Positive changes */
-  --color-accent-amber: #EC7E00;      /* Warnings */
-  --color-accent-purple: #818cf8;     /* Premium accents */
+  --color-accent-red: var(--color-clay-600);
+  --color-accent-green: var(--color-forest-500);
+  --color-accent-amber: var(--color-clay-400);
+  --color-accent-purple: var(--color-indigo-600);
 
   /* GRADIENT */
-  --gradient-primary: linear-gradient(135deg, #494FDF 0%, #E61E49 100%);
-  --gradient-warm: linear-gradient(135deg, #EC7E00 0%, #E23B4A 100%);
-  --gradient-success: linear-gradient(135deg, #00A87E 0%, #5B9FDF 100%);
+  --gradient-primary: linear-gradient(135deg, var(--color-forest-600) 0%, var(--color-forest-500) 100%);
+  --gradient-warm: linear-gradient(135deg, var(--color-clay-400) 0%, var(--color-clay-600) 100%);
+  --gradient-success: linear-gradient(135deg, var(--color-forest-500) 0%, var(--color-indigo-200) 100%);
 
   /* BACKGROUND */
-  --bg-primary: #08090E;
-  --bg-secondary: #141622;
-  --bg-tertiary: #1B1E2E;
+  --bg-primary: var(--color-cream-50);
+  --bg-secondary: var(--color-white);
+  --bg-tertiary: var(--color-cream-100);
 
   /* DARK MODE */
-  --bg-primary-dark: #08090E;
-  --bg-secondary-dark: #141622;
-  --bg-tertiary-dark: #1B1E2E;
+  --bg-primary-dark: var(--color-cream-50);
+  --bg-secondary-dark: var(--color-white);
+  --bg-tertiary-dark: var(--color-cream-100);
 
   /* TEXT */
-  --text-primary: #FFFFFF;
-  --text-secondary: #9AA0B3;
-  --text-tertiary: #5D6275;
+  --text-primary: var(--color-graphite-900);
+  --text-secondary: var(--color-graphite-700);
+  --text-tertiary: var(--color-graphite-50);
   --text-light: #ffffff;
 
   /* BORDERS */
-  --border-light: #232638;
-  --border-dark: #3A3C4E;
+  --border-light: var(--color-cream-200);
+  --border-dark: var(--color-cream-200);
 
-  /* SHADOW — Flat design philosophy (no drop shadows) */
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-xl: none;
+  /* SHADOW */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
 
   /* SPACING */
   --space-xs: 0.25rem;   /* 4px */

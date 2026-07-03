@@ -2,6 +2,7 @@ export interface User {
   id: string;
   name: string;
   cpf: string;
+  avatarUrl?: string | null;
 }
 
 export interface Market {

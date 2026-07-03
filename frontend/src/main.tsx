@@ -32,6 +32,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import "./index.css";
+if (typeof window !== "undefined") {
+  const savedTheme = localStorage.getItem("markt_theme") || "green";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+}
 import App from "./App.tsx";
 import { AuthProvider } from "./lib/auth-context";
 

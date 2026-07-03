@@ -5,44 +5,164 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Plus Jakarta Sans", var(--font-sans);
 
-  /* Overriding standard Tailwind colors to align with Revolut Dark Mode */
-  --color-white: #141622;       /* Surface/Card backgrounds */
-  --color-gray-50: #08090E;     /* Page background */
-  --color-gray-100: #1B1E2E;    /* Hover/Input background */
-  --color-gray-200: #232638;    /* Border color */
-  --color-gray-300: #3A3C4E;    /* Focused border */
-  --color-gray-400: #5D6275;    /* Muted text */
-  --color-gray-500: #6B7280;
-  --color-gray-600: #9AA0B3;    /* Secondary text */
-  --color-gray-700: #D0D4E0;
-  --color-gray-800: #F3F4F6;
-  --color-gray-900: #FFFFFF;    /* Primary text */
+  /* Overriding standard Tailwind colors to align with dynamic themes */
+  --color-white: var(--color-white-val);
+  --color-gray-50: var(--color-gray-50-val);
+  --color-gray-100: var(--color-gray-100-val);
+  --color-gray-200: var(--color-gray-200-val);
+  --color-gray-300: var(--color-gray-300-val);
+  --color-gray-400: var(--color-gray-400-val);
+  --color-gray-500: var(--color-gray-500-val);
+  --color-gray-600: var(--color-gray-600-val);
+  --color-gray-700: var(--color-gray-700-val);
+  --color-gray-800: var(--color-gray-800-val);
+  --color-gray-900: var(--color-gray-900-val);
 
-  --color-indigo-50: rgba(73, 79, 223, 0.08);
-  --color-indigo-100: rgba(73, 79, 223, 0.15);
-  --color-indigo-200: rgba(73, 79, 223, 0.3);
-  --color-indigo-600: #494FDF;  /* Primary Cobalt Violet */
-  --color-indigo-700: #3C42C4;  /* Primary Active */
+  --color-indigo-50: var(--color-indigo-50-val);
+  --color-indigo-100: var(--color-indigo-100-val);
+  --color-indigo-200: var(--color-indigo-200-val);
+  --color-indigo-600: var(--color-indigo-600-val);
+  --color-indigo-700: var(--color-indigo-700-val);
 
-  /* Map custom project tokens (cream, forest, clay, graphite) to Revolut styles */
-  --color-cream-50: #08090E;
-  --color-cream-100: #141622;
-  --color-cream-200: #232638;
+  /* Map custom project tokens (cream, forest, clay, graphite) to theme variables */
+  --color-cream-50: var(--color-cream-50-val);
+  --color-cream-100: var(--color-cream-100-val);
+  --color-cream-200: var(--color-cream-200-val);
 
-  --color-forest-50: rgba(73, 79, 223, 0.08);
-  --color-forest-100: rgba(73, 79, 223, 0.15);
-  --color-forest-300: #5F65EB;
-  --color-forest-500: #494FDF;
-  --color-forest-600: #494FDF;
-  --color-forest-700: #3C42C4;
+  --color-forest-50: var(--color-forest-50-val);
+  --color-forest-100: var(--color-forest-100-val);
+  --color-forest-300: var(--color-forest-300-val);
+  --color-forest-500: var(--color-forest-500-val);
+  --color-forest-600: var(--color-forest-600-val);
+  --color-forest-700: var(--color-forest-700-val);
 
-  --color-clay-100: rgba(226, 59, 74, 0.12);
-  --color-clay-400: #F05260;
-  --color-clay-600: #E23B4A;
+  --color-clay-100: var(--color-clay-100-val);
+  --color-clay-400: var(--color-clay-400-val);
+  --color-clay-600: var(--color-clay-600-val);
 
-  --color-graphite-500: #5D6275;
-  --color-graphite-700: #9AA0B3;
-  --color-graphite-900: #FFFFFF;
+  --color-graphite-500: var(--color-graphite-500-val);
+  --color-graphite-700: var(--color-graphite-700-val);
+  --color-graphite-900: var(--color-graphite-900-val);
+}
+
+/* Default Theme: Green/Cream (original style) */
+:root, [data-theme="green"] {
+  --color-white-val: #ffffff;
+  --color-gray-50-val: #f9fafb;
+  --color-gray-100-val: #f3f4f6;
+  --color-gray-200-val: #e5e7eb;
+  --color-gray-300-val: #d1d5db;
+  --color-gray-400-val: #9ca3af;
+  --color-gray-500-val: #6b7280;
+  --color-gray-600-val: #4b5563;
+  --color-gray-700-val: #374151;
+  --color-gray-800-val: #1f2937;
+  --color-gray-900-val: #111827;
+
+  --color-indigo-50-val: #f5f3ff;
+  --color-indigo-100-val: #ede9fe;
+  --color-indigo-200-val: #ddd6fe;
+  --color-indigo-600-val: #7c3aed;
+  --color-indigo-700-val: #6d28d9;
+
+  --color-cream-50-val: #fdfaf5;
+  --color-cream-100-val: #f7f1e6;
+  --color-cream-200-val: #ece1cc;
+
+  --color-forest-50-val: #f1f6ea;
+  --color-forest-100-val: #dde9cb;
+  --color-forest-300-val: #9dc06b;
+  --color-forest-500-val: #5c8a2e;
+  --color-forest-600-val: #3f6212;
+  --color-forest-700-val: #33500e;
+
+  --color-clay-100-val: #f7e3d6;
+  --color-clay-400-val: #e0935a;
+  --color-clay-600-val: #c4652f;
+
+  --color-graphite-500-val: #6b6558;
+  --color-graphite-700-val: #423d34;
+  --color-graphite-900-val: #2a2620;
+}
+
+/* Indigo/Blue Theme */
+[data-theme="indigo"] {
+  --color-white-val: #ffffff;
+  --color-gray-50-val: #f8fafc;
+  --color-gray-100-val: #f1f5f9;
+  --color-gray-200-val: #e2e8f0;
+  --color-gray-300-val: #cbd5e1;
+  --color-gray-400-val: #94a3b8;
+  --color-gray-500-val: #64748b;
+  --color-gray-600-val: #475569;
+  --color-gray-700-val: #334155;
+  --color-gray-800-val: #1e293b;
+  --color-gray-900-val: #0f172a;
+
+  --color-indigo-50-val: #e0f2fe;
+  --color-indigo-100-val: #bae6fd;
+  --color-indigo-200-val: #7dd3fc;
+  --color-indigo-600-val: #4f46e5;
+  --color-indigo-700-val: #4338ca;
+
+  --color-cream-50-val: #f8fafc;
+  --color-cream-100-val: #f1f5f9;
+  --color-cream-200-val: #e2e8f0;
+
+  --color-forest-50-val: #e0f2fe;
+  --color-forest-100-val: #bae6fd;
+  --color-forest-300-val: #7dd3fc;
+  --color-forest-500-val: #0284c7;
+  --color-forest-600-val: #4f46e5;
+  --color-forest-700-val: #4338ca;
+
+  --color-clay-100-val: #fee2e2;
+  --color-clay-400-val: #f87171;
+  --color-clay-600-val: #ef4444;
+
+  --color-graphite-500-val: #64748b;
+  --color-graphite-700-val: #475569;
+  --color-graphite-900-val: #0f172a;
+}
+
+/* Dark Theme (Revolut style) */
+[data-theme="dark"] {
+  --color-white-val: #141622;
+  --color-gray-50-val: #08090E;
+  --color-gray-100-val: #1b1e2e;
+  --color-gray-200-val: #232638;
+  --color-gray-300-val: #3a3c4e;
+  --color-gray-400-val: #5d6275;
+  --color-gray-500-val: #6b7280;
+  --color-gray-600-val: #9aa0b3;
+  --color-gray-700-val: #d0d4e0;
+  --color-gray-800-val: #f3f4f6;
+  --color-gray-900-val: #ffffff;
+
+  --color-indigo-50-val: rgba(73, 79, 223, 0.08);
+  --color-indigo-100-val: rgba(73, 79, 223, 0.15);
+  --color-indigo-200-val: rgba(73, 79, 223, 0.3);
+  --color-indigo-600-val: #494FDF;
+  --color-indigo-700-val: #3c42c4;
+
+  --color-cream-50-val: #08090E;
+  --color-cream-100-val: #141622;
+  --color-cream-200-val: #232638;
+
+  --color-forest-50-val: rgba(73, 79, 223, 0.08);
+  --color-forest-100-val: rgba(73, 79, 223, 0.15);
+  --color-forest-300-val: #5f65eb;
+  --color-forest-500-val: #494FDF;
+  --color-forest-600-val: #494FDF;
+  --color-forest-700-val: #3c42c4;
+
+  --color-clay-100-val: rgba(226, 59, 74, 0.12);
+  --color-clay-400-val: #f05260;
+  --color-clay-600-val: #e23b4a;
+
+  --color-graphite-500-val: #5d6275;
+  --color-graphite-700-val: #9aa0b3;
+  --color-graphite-900-val: #ffffff;
 }
 
 html,

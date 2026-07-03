@@ -51,7 +51,7 @@ router.post("/register", async (req, res) => {
     const token = signToken(user.id);
     res.status(201).json({
       token,
-      user: { id: user.id, name: user.name, cpf: user.cpf },
+      user: { id: user.id, name: user.name, cpf: user.cpf, avatarUrl: user.avatarUrl },
     });
   } catch (error: any) {
     console.error("Erro no registro:", error);
@@ -78,7 +78,7 @@ router.post("/login", async (req, res) => {
     }
 
     const token = signToken(user.id);
-    res.json({ token, user: { id: user.id, name: user.name, cpf: user.cpf } });
+    res.json({ token, user: { id: user.id, name: user.name, cpf: user.cpf, avatarUrl: user.avatarUrl } });
   } catch (error: any) {
     console.error("Erro no login:", error);
     res.status(500).json({ error: error.message ?? "Erro interno no servidor" });
@@ -96,9 +96,43 @@ router.get("/me", async (req, res) => {
     };
     const user = await prisma.user.findUnique({ where: { id: payload.sub } });
     if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
-    res.json({ user: { id: user.id, name: user.name, cpf: user.cpf } });
+    res.json({ user: { id: user.id, name: user.name, cpf: user.cpf, avatarUrl: user.avatarUrl } });
   } catch {
     res.status(401).json({ error: "Token inválido ou expirado" });
+  }
+});
+
+const updateProfileSchema = z.object({
+  name: z.string().min(2).optional(),
+  avatarUrl: z.string().nullable().optional(),
+});
+
+router.put("/profile", async (req, res) => {
+  const header = req.headers.authorization;
+  const token = header?.startsWith("Bearer ") ? header.slice(7) : null;
+  if (!token) return res.status(401).json({ error: "Token ausente" });
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+      sub: string;
+    };
+    const parsed = updateProfileSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Dados inválidos" });
+    }
+
+    const data: any = {};
+    if (parsed.data.name !== undefined) data.name = parsed.data.name;
+    if (parsed.data.avatarUrl !== undefined) data.avatarUrl = parsed.data.avatarUrl;
+
+    const user = await prisma.user.update({
+      where: { id: payload.sub },
+      data,
+    });
+
+    res.json({ user: { id: user.id, name: user.name, cpf: user.cpf, avatarUrl: user.avatarUrl } });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message ?? "Erro ao atualizar perfil" });
   }
 });
 

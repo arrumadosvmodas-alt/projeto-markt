@@ -15,6 +15,7 @@ model User {
   createdAt    DateTime   @default(now())
   purchases    Purchase[]
   markets      Market[]   @relation("MarketCreatedBy")
+  avatarUrl    String? // Foto do perfil em Base64 ou URL
 }
 
 model Market {

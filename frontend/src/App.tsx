@@ -9,7 +9,6 @@ import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
-import { Calendar } from "./pages/Calendar";
 import "./styles/design-system.css";
 
 function App() {
@@ -19,18 +18,6 @@ function App() {
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
-
-        {/* Calendário */}
-        <Route
-          path="/calendario"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Calendar />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
 
         {/* Compras (modo individual) */}
         <Route
