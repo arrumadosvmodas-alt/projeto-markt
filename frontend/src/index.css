@@ -1,26 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", var(--font-sans);
 
-  --color-cream-50: #fdfaf5;
-  --color-cream-100: #f7f1e6;
-  --color-cream-200: #ece1cc;
+  /* Overriding standard Tailwind colors to align with Revolut Dark Mode */
+  --color-white: #141622;       /* Surface/Card backgrounds */
+  --color-gray-50: #08090E;     /* Page background */
+  --color-gray-100: #1B1E2E;    /* Hover/Input background */
+  --color-gray-200: #232638;    /* Border color */
+  --color-gray-300: #3A3C4E;    /* Focused border */
+  --color-gray-400: #5D6275;    /* Muted text */
+  --color-gray-500: #6B7280;
+  --color-gray-600: #9AA0B3;    /* Secondary text */
+  --color-gray-700: #D0D4E0;
+  --color-gray-800: #F3F4F6;
+  --color-gray-900: #FFFFFF;    /* Primary text */
 
-  --color-forest-50: #f1f6ea;
-  --color-forest-100: #dde9cb;
-  --color-forest-300: #9dc06b;
-  --color-forest-500: #5c8a2e;
-  --color-forest-600: #3f6212;
-  --color-forest-700: #33500e;
+  --color-indigo-50: rgba(73, 79, 223, 0.08);
+  --color-indigo-100: rgba(73, 79, 223, 0.15);
+  --color-indigo-200: rgba(73, 79, 223, 0.3);
+  --color-indigo-600: #494FDF;  /* Primary Cobalt Violet */
+  --color-indigo-700: #3C42C4;  /* Primary Active */
 
-  --color-clay-100: #f7e3d6;
-  --color-clay-400: #e0935a;
-  --color-clay-600: #c4652f;
+  /* Map custom project tokens (cream, forest, clay, graphite) to Revolut styles */
+  --color-cream-50: #08090E;
+  --color-cream-100: #141622;
+  --color-cream-200: #232638;
 
-  --color-graphite-500: #6b6558;
-  --color-graphite-700: #423d34;
-  --color-graphite-900: #2a2620;
+  --color-forest-50: rgba(73, 79, 223, 0.08);
+  --color-forest-100: rgba(73, 79, 223, 0.15);
+  --color-forest-300: #5F65EB;
+  --color-forest-500: #494FDF;
+  --color-forest-600: #494FDF;
+  --color-forest-700: #3C42C4;
+
+  --color-clay-100: rgba(226, 59, 74, 0.12);
+  --color-clay-400: #F05260;
+  --color-clay-600: #E23B4A;
+
+  --color-graphite-500: #5D6275;
+  --color-graphite-700: #9AA0B3;
+  --color-graphite-900: #FFFFFF;
 }
 
 html,
