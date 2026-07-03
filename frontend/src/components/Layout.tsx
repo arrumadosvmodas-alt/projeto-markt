@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { BottomNav } from "./BottomNav";
+import { Logo } from "./ui";
 import { useAuth } from "../lib/auth-context";
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -7,28 +8,28 @@ export function Layout({ children }: { children: ReactNode }) {
   const initials = user?.name ? user.name.charAt(0).toUpperCase() : "";
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col font-sans">
-      {/* Cabeçalho Superior Fixo - Adaptável aos Temas */}
-      <header className="sticky top-0 z-20 border-b border-cream-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-        <div className="flex h-16 items-center justify-between px-4">
+    <div className="min-h-screen bg-cream-50 text-graphite-900 flex flex-col">
+      {/* Cabeçalho Superior Fixo */}
+      <header className="sticky top-0 z-20 border-b border-cream-200 bg-cream-50/90 backdrop-blur-md shadow-sm">
+        <div className="mx-auto flex h-14 max-w-md items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-forest-600"></span>
-            <span className="text-xl font-extrabold tracking-tight text-graphite-900 font-display">Markt</span>
+            <Logo className="h-7 w-7" />
+            <span className="text-lg font-bold tracking-tight text-forest-700">Markt</span>
           </div>
 
           {user && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-graphite-500">
-                {user.name.split(" ")[0]}
+                Olá, {user.name.split(" ")[0]}
               </span>
               {user.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
                   alt="Avatar"
-                  className="h-9 w-9 rounded-full object-cover border border-cream-200 shadow-sm"
+                  className="h-7 w-7 rounded-full object-cover border border-cream-200 ring-2 ring-forest-50 shadow-sm"
                 />
               ) : (
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-forest-50 border border-forest-100 text-forest-600 text-xs font-bold uppercase tracking-wider">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-forest-100 text-xs font-bold text-forest-700 ring-2 ring-forest-50 select-none">
                   {initials}
                 </div>
               )}
@@ -38,7 +39,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </header>
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 pb-24 overflow-y-auto">
+      <main className="flex-1 pb-20">
         {children}
       </main>
 
