@@ -69,4 +69,25 @@ router.post("/manual", async (req, res) => {
   res.status(201).json({ product });
 });
 
+router.get("/search", async (req, res) => {
+  const query = req.query.q ? String(req.query.q).trim() : "";
+  if (!query) return res.json({ products: [] });
+
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: "insensitive",
+        },
+      },
+      take: 10,
+    });
+    res.json({ products });
+  } catch (error: any) {
+    console.error("Erro na busca de produtos:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

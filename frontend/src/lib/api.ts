@@ -1,5 +1,5 @@
 const isCapacitor = typeof (window as any).Capacitor !== "undefined";
-const API_BASE = isCapacitor ? "http://192.168.0.2:4000" : "/api";
+const API_BASE = isCapacitor ? "https://markt-backend.onrender.com" : "/api";
 
 export class ApiError extends Error {
   status: number;
