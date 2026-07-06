@@ -39,7 +39,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </header>
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 pb-20">
+      <main className="flex-1 pb-32">
         {children}
       </main>
 

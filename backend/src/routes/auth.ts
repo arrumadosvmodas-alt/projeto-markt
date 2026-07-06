@@ -11,6 +11,7 @@ const registerSchema = z.object({
   cpf: z.string(),
   name: z.string().min(2),
   password: z.string().min(6),
+  planType: z.enum(["free_trial", "monthly", "yearly"]).optional(),
 });
 
 const loginSchema = z.object({
@@ -24,6 +25,35 @@ function signToken(userId: string) {
   });
 }
 
+async function checkAndSerializeUser(user: any) {
+  let activeUser = user;
+  const now = new Date();
+  if (now > user.subscriptionEnd && user.queuedPlan && user.queuedPlanEnd) {
+    activeUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        subscriptionType: user.queuedPlan,
+        subscriptionStart: user.subscriptionEnd,
+        subscriptionEnd: user.queuedPlanEnd,
+        queuedPlan: null,
+        queuedPlanEnd: null,
+      },
+    });
+  }
+
+  return {
+    id: activeUser.id,
+    name: activeUser.name,
+    cpf: activeUser.cpf,
+    avatarUrl: activeUser.avatarUrl,
+    subscriptionType: activeUser.subscriptionType,
+    subscriptionStart: activeUser.subscriptionStart,
+    subscriptionEnd: activeUser.subscriptionEnd,
+    queuedPlan: activeUser.queuedPlan,
+    queuedPlanEnd: activeUser.queuedPlanEnd,
+  };
+}
+
 router.post("/register", async (req, res) => {
   try {
     const parsed = registerSchema.safeParse(req.body);
@@ -31,7 +61,7 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Dados inválidos" });
     }
 
-    const { name, password } = parsed.data;
+    const { name, password, planType = "free_trial" } = parsed.data;
     const cpf = normalizeCpf(parsed.data.cpf);
 
     if (!isValidCpf(cpf)) {
@@ -43,15 +73,29 @@ router.post("/register", async (req, res) => {
       return res.status(409).json({ error: "CPF já cadastrado" });
     }
 
+    const now = new Date();
+    let durationDays = 7;
+    if (planType === "monthly") durationDays = 30;
+    if (planType === "yearly") durationDays = 365;
+    const subscriptionEnd = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { cpf, name, passwordHash },
+      data: {
+        cpf,
+        name,
+        passwordHash,
+        subscriptionType: planType,
+        subscriptionStart: now,
+        subscriptionEnd,
+      },
     });
 
     const token = signToken(user.id);
+    const serializedUser = await checkAndSerializeUser(user);
     res.status(201).json({
       token,
-      user: { id: user.id, name: user.name, cpf: user.cpf, avatarUrl: user.avatarUrl },
+      user: serializedUser,
     });
   } catch (error: any) {
     console.error("Erro no registro:", error);
@@ -78,7 +122,8 @@ router.post("/login", async (req, res) => {
     }
 
     const token = signToken(user.id);
-    res.json({ token, user: { id: user.id, name: user.name, cpf: user.cpf, avatarUrl: user.avatarUrl } });
+    const serializedUser = await checkAndSerializeUser(user);
+    res.json({ token, user: serializedUser });
   } catch (error: any) {
     console.error("Erro no login:", error);
     res.status(500).json({ error: error.message ?? "Erro interno no servidor" });
@@ -96,7 +141,8 @@ router.get("/me", async (req, res) => {
     };
     const user = await prisma.user.findUnique({ where: { id: payload.sub } });
     if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
-    res.json({ user: { id: user.id, name: user.name, cpf: user.cpf, avatarUrl: user.avatarUrl } });
+    const serializedUser = await checkAndSerializeUser(user);
+    res.json({ user: serializedUser });
   } catch {
     res.status(401).json({ error: "Token inválido ou expirado" });
   }
@@ -130,7 +176,8 @@ router.put("/profile", async (req, res) => {
       data,
     });
 
-    res.json({ user: { id: user.id, name: user.name, cpf: user.cpf, avatarUrl: user.avatarUrl } });
+    const serializedUser = await checkAndSerializeUser(user);
+    res.json({ user: serializedUser });
   } catch (error: any) {
     res.status(500).json({ error: error.message ?? "Erro ao atualizar perfil" });
   }

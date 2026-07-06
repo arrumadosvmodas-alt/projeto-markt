@@ -124,14 +124,14 @@ export default function ActivePurchase({
 
   return (
     <div className="mx-auto max-w-md px-4 py-8">
-      <div className="flex items-start justify-between gap-4 mb-2">
+      <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
           <PageHeader title={purchase.market.name} subtitle={`${purchase.items.length} itens na compra`} />
         </div>
         <Button
           variant="ghost"
           onClick={handleCancelPurchase}
-          className="text-clay-600 hover:text-clay-700 hover:bg-clay-50 font-semibold text-xs px-2.5 py-1.5 border border-clay-200/50 rounded-xl shrink-0 mt-1"
+          className="text-clay-600 hover:text-clay-700 hover:bg-clay-50 font-semibold text-xs px-2.5 py-1.5 border border-clay-200/50 rounded-xl shrink-0 mt-1 cursor-pointer"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5">
             <path d="M19 12H5M5 12l6-6M5 12l6 6" />
@@ -140,36 +140,37 @@ export default function ActivePurchase({
         </Button>
       </div>
 
-      <Card className="p-4">
+      <Card className="p-4 bg-white border border-cream-200 mb-4">
         <BudgetBar total={purchase.totalAmount} budgetLimit={purchase.budgetLimit} />
       </Card>
 
       {lastComparison && (
-        <Card className="mt-4 p-4 border-l-4 border-l-forest-500">
-          <p className="text-xs font-semibold text-graphite-400 uppercase tracking-wider">Último item adicionado</p>
-          <p className="mt-1 text-sm font-bold text-graphite-900">{lastComparison.productName}</p>
+        <Card className="p-4 border border-cream-200 bg-white border-l-4 border-l-forest-500 mb-4 animate-fade-in">
+          <p className="text-[10px] font-bold text-graphite-400 uppercase tracking-wider">Último item adicionado</p>
+          <p className="mt-1 text-sm font-bold text-graphite-900 truncate">{lastComparison.productName}</p>
           <div className="mt-2">
             <PriceDeltaBadge comparison={lastComparison.comparison} />
           </div>
         </Card>
       )}
 
-      {error && <p className="mt-3 text-sm font-semibold text-clay-600">{error}</p>}
+      {error && <p className="mt-3 text-sm font-semibold text-clay-600 mb-4">{error}</p>}
 
-      <Button
-        className="mt-5 w-full shadow-md shadow-forest-600/10"
-        onClick={() => setStep({ kind: "adding-choice" })}
-        disabled={step.kind !== "idle"}
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4">
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-        Adicionar item
-      </Button>
+      {step.kind === "idle" && (
+        <Button
+          className="w-full shadow-md shadow-forest-600/10 transition-all duration-150 active:scale-[0.98]"
+          onClick={() => setStep({ kind: "adding-choice" })}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Adicionar item
+        </Button>
+      )}
 
       {step.kind === "looking-up" && (
-        <div className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-graphite-500">
+        <div className="flex items-center justify-center gap-2 text-sm font-medium text-graphite-500 py-3">
           <svg className="h-4 w-4 animate-spin text-forest-600" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -178,92 +179,8 @@ export default function ActivePurchase({
         </div>
       )}
 
-      {step.kind === "manual-product" && (
-        <ManualProductForm
-          barcode={step.barcode}
-          onCreated={(product) => setStep({ kind: "price-quantity", product })}
-          onCancel={() => setStep({ kind: "idle" })}
-        />
-      )}
-
-      {step.kind === "price-quantity" && (
-        <PriceQuantityForm
-          product={step.product}
-          onSubmit={(price, quantity) => handleAddItem(step.product, price, quantity)}
-          onCancel={() => setStep({ kind: "idle" })}
-        />
-      )}
-
-      {step.kind === "editing-item" && (
-        <EditPriceQuantityForm
-          item={step.item}
-          onSubmit={(price, quantity) => handleUpdateItem(step.item.id, price, quantity)}
-          onCancel={() => setStep({ kind: "idle" })}
-        />
-      )}
-
-      {purchase.items.length > 0 && (
-        <div className="mt-8 animate-fade-in">
-          <p className="mb-3 text-sm font-bold text-graphite-700 uppercase tracking-wider">Itens adicionados</p>
-          <ul className="space-y-2.5">
-            {[...purchase.items].reverse().map((item) => (
-              <li key={item.id} className="flex items-center justify-between rounded-xl bg-white px-4 py-3.5 border border-cream-200/60 shadow-sm transition-all duration-200 hover:shadow">
-                <div className="flex-1 min-w-0 pr-2">
-                  <p className="text-sm font-bold text-graphite-900 truncate">{item.product.name}</p>
-                  <span className="inline-block px-2 py-0.5 bg-cream-100/80 text-graphite-600 rounded-lg text-[10px] font-bold mt-1">
-                    {item.quantity} × {formatBRL(item.price)}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="font-bold text-graphite-900 pr-1">{formatBRL(item.subtotal)}</p>
-                  
-                  <button
-                    onClick={() => setStep({ kind: "editing-item", item })}
-                    className="rounded-xl p-2 text-graphite-400 hover:bg-forest-50 hover:text-forest-600 transition-all duration-200 cursor-pointer"
-                    aria-label="Editar item"
-                  >
-                    <EditIcon />
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      if (confirm(`Deseja realmente excluir o item "${item.product.name}"?`)) {
-                        try {
-                          const res = await api.delete<{ purchase: Purchase }>(
-                            `/purchases/${purchase.id}/items/${item.id}`
-                          );
-                          onChange(res.purchase);
-                        } catch {
-                          setError("Não foi possível remover o item.");
-                        }
-                      }
-                    }}
-                    className="rounded-xl p-2 text-graphite-400 hover:bg-clay-100 hover:text-clay-600 transition-all duration-200 cursor-pointer"
-                    aria-label="Remover item"
-                  >
-                    <TrashIcon />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {step.kind === "idle" && (
-        <Button
-          variant="secondary"
-          className="mt-8 w-full border border-forest-100 shadow-sm"
-          onClick={() => setStep({ kind: "paying" })}
-          disabled={completing || purchase.items.length === 0}
-        >
-          Finalizar compra
-        </Button>
-      )}
-
-
       {step.kind === "adding-choice" && (
-        <Card className="mt-4 p-4 border border-cream-200 bg-white">
+        <Card className="p-4 border border-cream-200 bg-white mt-4">
           <p className="font-bold text-graphite-900 mb-3">Como deseja adicionar o item?</p>
           <div className="flex flex-col gap-2">
             <Button onClick={() => setStep({ kind: "scanning" })} className="w-full">
@@ -294,7 +211,7 @@ export default function ActivePurchase({
       )}
 
       {step.kind === "typing-code" && (
-        <Card className="mt-4 p-4 border border-cream-200 bg-white">
+        <Card className="p-4 border border-cream-200 bg-white mt-4">
           <p className="font-bold text-graphite-900 mb-3">Digitar código de barras</p>
           <form
             onSubmit={(e) => {
@@ -332,6 +249,30 @@ export default function ActivePurchase({
         />
       )}
 
+      {step.kind === "manual-product" && (
+        <ManualProductForm
+          barcode={step.barcode}
+          onCreated={(product) => setStep({ kind: "price-quantity", product })}
+          onCancel={() => setStep({ kind: "idle" })}
+        />
+      )}
+
+      {step.kind === "price-quantity" && (
+        <PriceQuantityForm
+          product={step.product}
+          onSubmit={(price, quantity) => handleAddItem(step.product, price, quantity)}
+          onCancel={() => setStep({ kind: "idle" })}
+        />
+      )}
+
+      {step.kind === "editing-item" && (
+        <EditPriceQuantityForm
+          item={step.item}
+          onSubmit={(price, quantity) => handleUpdateItem(step.item.id, price, quantity)}
+          onCancel={() => setStep({ kind: "idle" })}
+        />
+      )}
+
       {step.kind === "paying" && (
         <PaymentForm
           totalAmount={purchase.totalAmount}
@@ -341,6 +282,65 @@ export default function ActivePurchase({
         />
       )}
 
+      {/* Listagem de Itens Adicionados */}
+      {purchase.items.length > 0 && (
+        <div className="animate-fade-in pt-2 mt-6">
+          <p className="mb-3 text-xs font-bold text-graphite-400 uppercase tracking-wider">Itens adicionados</p>
+          <ul className="space-y-2.5">
+            {[...purchase.items].reverse().map((item) => (
+              <li key={item.id} className="flex items-center justify-between rounded-2xl bg-white px-4 py-3.5 border border-cream-200/60 shadow-sm transition-all duration-200 hover:shadow">
+                <div className="flex-1 min-w-0 pr-2">
+                  <p className="text-sm font-bold text-graphite-900 truncate">{item.product.name}</p>
+                  <span className="inline-block px-2.5 py-1 bg-cream-100/60 text-graphite-600 rounded-xl text-[10px] font-bold mt-1">
+                    {item.quantity} × {formatBRL(item.price)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="font-bold text-graphite-900 pr-1 tabular-nums">{formatBRL(item.subtotal)}</p>
+                  
+                  <button
+                    onClick={() => setStep({ kind: "editing-item", item })}
+                    className="rounded-xl p-2 text-graphite-400 hover:bg-forest-50 hover:text-forest-600 transition-all duration-200 cursor-pointer"
+                    aria-label="Editar item"
+                  >
+                    <EditIcon />
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      if (confirm(`Deseja realmente excluir o item "${item.product.name}"?`)) {
+                        try {
+                          const res = await api.delete<{ purchase: Purchase }>(
+                            `/purchases/${purchase.id}/items/${item.id}`
+                          );
+                          onChange(res.purchase);
+                        } catch {
+                          setError("Não foi possível remover o item.");
+                        }
+                      }
+                    }}
+                    className="rounded-xl p-2 text-graphite-400 hover:bg-clay-100 hover:text-clay-600 transition-all duration-200 cursor-pointer"
+                    aria-label="Remover item"
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {step.kind === "idle" && (
+        <Button
+          variant="secondary"
+          className="w-full border border-forest-100 shadow-sm mt-8 transition-all duration-150 active:scale-[0.98]"
+          onClick={() => setStep({ kind: "paying" })}
+          disabled={completing || purchase.items.length === 0}
+        >
+          Finalizar compra
+        </Button>
+      )}
       {step.kind === "scanning" && (
         <Scanner onDetected={handleBarcode} onClose={() => setStep({ kind: "idle" })} />
       )}

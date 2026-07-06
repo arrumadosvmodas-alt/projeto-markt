@@ -2,7 +2,13 @@ import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../lib/auth-context";
 
-export function ProtectedRoute({ children }: { children: ReactNode }) {
+export function ProtectedRoute({ 
+  children, 
+  allowExpired = false 
+}: { 
+  children: ReactNode; 
+  allowExpired?: boolean;
+}) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -14,6 +20,11 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   }
 
   if (!user) return <Navigate to="/login" replace />;
+
+  const isExpired = new Date(user.subscriptionEnd) < new Date();
+  if (isExpired && !allowExpired) {
+    return <Navigate to="/billing" replace />;
+  }
 
   return <>{children}</>;
 }

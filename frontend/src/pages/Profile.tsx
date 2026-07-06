@@ -94,7 +94,7 @@ export default function Profile() {
       <PageHeader title="Perfil" />
 
       {/* CARD 1: INFORMAÇÕES PESSOAIS */}
-      <Card className="p-6 border border-cream-200 bg-white">
+      <Card className="p-6 border border-cream-200 bg-white rounded-2xl">
         <div className="mb-6 flex items-center gap-4">
           <div className="relative group">
             {user?.avatarUrl ? (
@@ -144,7 +144,7 @@ export default function Profile() {
       </Card>
 
       {/* CARD 2: CORES DO APLICATIVO */}
-      <Card className="p-6 border border-cream-200 bg-white">
+      <Card className="p-6 border border-cream-200 bg-white rounded-2xl">
         <div className="mb-4">
           <p className="font-bold text-graphite-900">Cores do Aplicativo</p>
           <p className="text-xs text-graphite-500 mt-0.5">Personalize o tema visual do seu Markt</p>
@@ -172,10 +172,56 @@ export default function Profile() {
         </div>
       </Card>
 
+      {/* CARD 3: PLANO DE ASSINATURA */}
+      <Card className="p-6 border border-cream-200 bg-white rounded-2xl">
+        <div className="mb-4">
+          <p className="font-bold text-graphite-900">Plano de Assinatura</p>
+          <p className="text-xs text-graphite-500 mt-0.5">Gerencie seu plano e período de uso</p>
+        </div>
+        
+        <div className="space-y-3.5 text-sm">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-graphite-500">Plano Atual</span>
+            <span className="font-bold text-graphite-900 bg-forest-50 text-forest-700 px-2.5 py-0.5 rounded-xl text-xs">
+              {user?.subscriptionType === "free_trial" && "Gratuito (7 dias)"}
+              {user?.subscriptionType === "monthly" && "Mensal"}
+              {user?.subscriptionType === "yearly" && "Anual"}
+            </span>
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-graphite-500">Válido até</span>
+            <span className="font-bold text-graphite-900">
+              {user ? new Date(user.subscriptionEnd).toLocaleDateString("pt-BR") : ""}
+            </span>
+          </div>
+          
+          {user?.queuedPlan && (
+            <div className="border-t border-cream-100 pt-3 flex justify-between items-start gap-2">
+              <div className="text-xs text-graphite-500 font-medium">
+                <p className="font-bold text-graphite-700">Próximo plano agendado:</p>
+                <p className="mt-0.5">Começa logo após o vencimento do atual.</p>
+              </div>
+              <span className="font-bold text-graphite-900 bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-xl text-xs shrink-0">
+                {user.queuedPlan === "yearly" ? "Anual" : "Mensal"}
+              </span>
+            </div>
+          )}
+          
+          <Button 
+            onClick={() => navigate("/billing")} 
+            variant="secondary" 
+            className="w-full mt-2.5 border border-forest-100"
+          >
+            Alterar ou Renovar Plano
+          </Button>
+        </div>
+      </Card>
+
       {/* BOTÃO DE LOGOUT */}
       <Button
         variant="ghost"
-        className="w-full text-clay-600 hover:bg-clay-50 active:bg-clay-100 border border-transparent hover:border-clay-100/50 rounded-2xl py-3 shadow-none"
+        className="w-full text-clay-600 hover:bg-clay-50 active:bg-clay-100 border border-transparent hover:border-clay-100/50 rounded-2xl py-3 shadow-none mt-2 cursor-pointer"
         onClick={() => {
           logout();
           navigate("/login", { replace: true });

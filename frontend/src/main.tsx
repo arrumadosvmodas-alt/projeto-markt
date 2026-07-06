@@ -1,11 +1,11 @@
-// Limpeza de cache do Service Worker no Capacitor para evitar asset caching antigo
-if (typeof window !== "undefined" && (window as any).Capacitor) {
+// Limpeza incondicional de Service Workers e Caches antigos para evitar asset caching antigo
+if (typeof window !== "undefined") {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       for (const registration of registrations) {
         registration.unregister().then((success) => {
           if (success) {
-            console.log("Service Worker desregistrado para compatibilidade no Capacitor");
+            console.log("Service Worker desregistrado para compatibilidade");
             window.location.reload();
           }
         });
@@ -15,15 +15,6 @@ if (typeof window !== "undefined" && (window as any).Capacitor) {
   if ("caches" in window) {
     caches.keys().then((keys) => {
       keys.forEach((key) => caches.delete(key));
-    });
-  }
-} else if (typeof window !== "undefined") {
-  // Registra o Service Worker apenas no navegador web comum
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch((err) => {
-        console.error("Erro ao registrar SW:", err);
-      });
     });
   }
 }

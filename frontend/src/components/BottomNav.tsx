@@ -17,14 +17,14 @@ export function BottomNav() {
               to={to}
               end={to === "/"}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-1.5 py-3 text-[11px] font-semibold transition-all duration-250 ${
+                `flex flex-col items-center gap-1 py-2 text-[11px] font-semibold transition-all duration-250 ${
                   isActive
                     ? "text-forest-600 scale-105"
                     : "text-graphite-500 hover:text-graphite-700"
                 }`
               }
             >
-              <Icon className="h-5.5 w-5.5 transition-transform duration-250" />
+              <Icon className="h-5 w-5 transition-transform duration-250" />
               <span>{label}</span>
             </NavLink>
           </li>

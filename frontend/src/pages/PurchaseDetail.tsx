@@ -31,17 +31,17 @@ export default function PurchaseDetail() {
         }
       />
 
-      <Card className="p-4 border border-cream-200 bg-white">
+      <Card className="p-4 border border-cream-200 bg-white rounded-2xl mb-6">
         <div className="flex items-baseline justify-between">
           <span className="text-sm font-semibold text-graphite-500">Total da compra</span>
-          <span className="text-2xl font-extrabold text-forest-700">
+          <span className="text-2xl font-black text-forest-700 tabular-nums">
             {formatBRL(purchase.totalAmount)}
           </span>
         </div>
         {purchase.budgetLimit && (
           <div className="mt-2.5 pt-2.5 border-t border-cream-100 flex items-center justify-between text-xs font-semibold text-graphite-500">
             <span>Limite definido</span>
-            <span>{formatBRL(purchase.budgetLimit)}</span>
+            <span className="tabular-nums">{formatBRL(purchase.budgetLimit)}</span>
           </div>
         )}
         {purchase.paymentMethod && (
@@ -56,7 +56,7 @@ export default function PurchaseDetail() {
               </span>
             </div>
             {purchase.paymentDetails && (
-              <div className="text-[10px] text-graphite-400 font-medium text-right mt-0.5 italic">
+              <div className="text-[10px] text-graphite-400 font-semibold text-right mt-0.5 italic">
                 {purchase.paymentDetails}
               </div>
             )}
@@ -64,24 +64,24 @@ export default function PurchaseDetail() {
         )}
       </Card>
 
-      <div className="mt-8 space-y-2.5">
+      <div className="space-y-2.5">
         <p className="text-xs font-bold text-graphite-700 uppercase tracking-wider">Itens desta compra</p>
         {purchase.items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between rounded-xl bg-white px-4 py-3.5 border border-cream-200/60 shadow-sm transition-all duration-200 hover:shadow">
+          <div key={item.id} className="flex items-center justify-between rounded-2xl bg-white px-4 py-3.5 border border-cream-200/60 shadow-sm transition-all duration-200 hover:shadow">
             <div className="flex-1 min-w-0 pr-2">
               <p className="text-sm font-bold text-graphite-900 truncate">{item.product.name}</p>
               <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                <span className="inline-block px-2 py-0.5 bg-cream-100/80 text-graphite-600 rounded-lg text-[10px] font-bold">
+                <span className="inline-block px-2.5 py-1 bg-cream-100/60 text-graphite-600 rounded-xl text-[10px] font-bold">
                   {item.quantity} × {formatBRL(item.price)}
                 </span>
                 {item.product.category && (
-                  <span className="inline-block px-2 py-0.5 bg-forest-50 text-forest-700 rounded-lg text-[10px] font-bold">
+                  <span className="inline-block px-2.5 py-1 bg-forest-50 text-forest-700 rounded-xl text-[10px] font-bold">
                     {item.product.category}
                   </span>
                 )}
               </div>
             </div>
-            <p className="font-bold text-graphite-900 shrink-0">{formatBRL(item.subtotal)}</p>
+            <p className="font-bold text-graphite-900 shrink-0 tabular-nums">{formatBRL(item.subtotal)}</p>
           </div>
         ))}
       </div>

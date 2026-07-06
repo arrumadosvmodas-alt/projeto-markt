@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma";
-import { requireAuth, AuthedRequest } from "../middleware/auth";
+import { requireAuth, requireActiveSubscription, AuthedRequest } from "../middleware/auth";
 import { comparePriceWithLastPurchase } from "../services/pricing";
 
 const router = Router();
 router.use(requireAuth);
+router.use(requireActiveSubscription);
 
 const createSchema = z.object({
   marketId: z.string(),

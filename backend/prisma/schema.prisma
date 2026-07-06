@@ -15,7 +15,12 @@ model User {
   createdAt    DateTime   @default(now())
   purchases    Purchase[]
   markets      Market[]   @relation("MarketCreatedBy")
-  avatarUrl    String? // Foto do perfil em Base64 ou URL
+  avatarUrl          String? // Foto do perfil em Base64 ou URL
+  subscriptionType   String    @default("free_trial") // "free_trial" | "monthly" | "yearly"
+  subscriptionStart  DateTime  @default(now())
+  subscriptionEnd    DateTime  @default(now())
+  queuedPlan         String? // "monthly" | "yearly"
+  queuedPlanEnd      DateTime?
 }
 
 model Market {

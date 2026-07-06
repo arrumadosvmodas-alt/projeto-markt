@@ -7,6 +7,8 @@ import History from "./pages/History";
 import PurchaseDetail from "./pages/PurchaseDetail";
 import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
+import Billing from "./pages/Billing";
+import CheckoutSimulator from "./pages/CheckoutSimulator";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
 import "./styles/design-system.css";
@@ -63,10 +65,26 @@ function App() {
         <Route
           path="/perfil"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowExpired>
               <Layout>
                 <Profile />
               </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/billing"
+          element={
+            <ProtectedRoute allowExpired>
+              <Billing />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/checkout-simulado"
+          element={
+            <ProtectedRoute allowExpired>
+              <CheckoutSimulator />
             </ProtectedRoute>
           }
         />

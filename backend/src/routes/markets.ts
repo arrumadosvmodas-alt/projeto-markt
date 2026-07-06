@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma";
-import { requireAuth, AuthedRequest } from "../middleware/auth";
+import { requireAuth, requireActiveSubscription, AuthedRequest } from "../middleware/auth";
 import { findNearbyMarkets } from "../services/overpass";
 
 const router = Router();
 router.use(requireAuth);
+router.use(requireActiveSubscription);
 
 router.get("/nearby", async (req, res) => {
   const lat = Number(req.query.lat);

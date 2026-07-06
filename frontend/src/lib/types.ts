@@ -3,6 +3,11 @@ export interface User {
   name: string;
   cpf: string;
   avatarUrl?: string | null;
+  subscriptionType: "free_trial" | "monthly" | "yearly";
+  subscriptionStart: string;
+  subscriptionEnd: string;
+  queuedPlan?: "monthly" | "yearly" | null;
+  queuedPlanEnd?: string | null;
 }
 
 export interface Market {

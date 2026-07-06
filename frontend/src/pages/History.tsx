@@ -43,10 +43,10 @@ export default function History() {
         {purchases?.map((p) => (
           <li key={p.id} className="animate-fade-in">
             <Link to={`/historico/${p.id}`}>
-              <Card className="p-4 border border-cream-200 hover:border-forest-300 hover:shadow-md transition-all duration-200">
+              <Card className="p-4 border border-cream-200 bg-white hover:border-forest-300 hover:shadow-md transition-all duration-200 rounded-2xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="bg-forest-50 p-2 rounded-xl text-forest-600">
+                    <div className="bg-forest-50 p-2.5 rounded-xl text-forest-600">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                         <polyline points="9 22 9 12 15 12 15 22" />
@@ -54,12 +54,12 @@ export default function History() {
                     </div>
                     <div>
                       <p className="font-bold text-graphite-900">{p.market.name}</p>
-                      <p className="text-xs text-graphite-500 font-medium">
+                      <p className="text-xs text-graphite-500 font-semibold mt-0.5">
                         {p.completedAt && new Date(p.completedAt).toLocaleDateString("pt-BR")} · {p.itemCount} {p.itemCount === 1 ? "item" : "itens"}
                       </p>
                     </div>
                   </div>
-                  <p className="font-bold text-graphite-950 text-base">{formatBRL(p.totalAmount)}</p>
+                  <p className="font-bold text-graphite-950 text-base tabular-nums">{formatBRL(p.totalAmount)}</p>
                 </div>
               </Card>
             </Link>

@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
-import { requireAuth, AuthedRequest } from "../middleware/auth";
+import { requireAuth, requireActiveSubscription, AuthedRequest } from "../middleware/auth";
 
 const router = Router();
 router.use(requireAuth);
+router.use(requireActiveSubscription);
 
 // Maiores altas e quedas de preço: compara as duas últimas compras de cada produto
 router.get("/price-changes", async (req: AuthedRequest, res) => {

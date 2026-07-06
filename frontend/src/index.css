@@ -1,11 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans", var(--font-sans);
-
-  /* Overriding standard Tailwind colors to align with dynamic themes */
+:root {
   --color-white: var(--color-white-val);
   --color-gray-50: var(--color-gray-50-val);
   --color-gray-100: var(--color-gray-100-val);
@@ -24,7 +22,6 @@
   --color-indigo-600: var(--color-indigo-600-val);
   --color-indigo-700: var(--color-indigo-700-val);
 
-  /* Map custom project tokens (cream, forest, clay, graphite) to theme variables */
   --color-cream-50: var(--color-cream-50-val);
   --color-cream-100: var(--color-cream-100-val);
   --color-cream-200: var(--color-cream-200-val);
@@ -40,6 +37,8 @@
   --color-clay-400: var(--color-clay-400-val);
   --color-clay-600: var(--color-clay-600-val);
 
+  --color-graphite-50: #fdfaf5;
+  --color-graphite-400: #9ca3af;
   --color-graphite-500: var(--color-graphite-500-val);
   --color-graphite-700: var(--color-graphite-700-val);
   --color-graphite-900: var(--color-graphite-900-val);

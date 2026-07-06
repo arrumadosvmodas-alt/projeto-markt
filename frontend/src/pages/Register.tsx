@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth, ApiError } from "../lib/auth-context";
 import { formatCpf, isValidCpf } from "../lib/cpf";
 import { Button, TextInput, Logo, Card } from "../components/ui";
+import { api } from "../lib/api";
 
 export default function Register() {
   const { register } = useAuth();
@@ -12,6 +13,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [planType, setPlanType] = useState<"free_trial" | "monthly" | "yearly">("free_trial");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,8 +30,17 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register(cpf, name, password);
-      navigate("/", { replace: true });
+      await register(cpf, name, password, planType);
+      
+      if (planType !== "free_trial") {
+        // Redireciona imediatamente para o fluxo de checkout
+        const pref = await api.post<{ initPoint: string }>("/subscription/create-preference", {
+          planType,
+        });
+        window.location.href = pref.initPoint;
+      } else {
+        navigate("/", { replace: true });
+      }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Não foi possível cadastrar");
     } finally {
@@ -75,6 +86,20 @@ export default function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-graphite-500 uppercase tracking-wider">Escolha seu Plano</label>
+            <select
+              value={planType}
+              onChange={(e) => setPlanType(e.target.value as any)}
+              className="w-full p-3.5 border border-cream-200 rounded-xl bg-white text-sm font-bold text-graphite-900 focus:outline-none focus:border-forest-600 transition-all cursor-pointer"
+            >
+              <option value="free_trial">Gratuito (7 dias grátis)</option>
+              <option value="monthly">Mensal (R$ 9,90/mês)</option>
+              <option value="yearly">Anual (R$ 99,00/ano)</option>
+            </select>
+          </div>
+
           {error && <p className="text-xs font-semibold text-clay-600">{error}</p>}
           <Button type="submit" className="w-full mt-2" disabled={loading}>
             {loading ? "Criando..." : "Criar conta"}

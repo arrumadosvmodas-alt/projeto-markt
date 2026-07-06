@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma";
-import { requireAuth } from "../middleware/auth";
+import { requireAuth, requireActiveSubscription } from "../middleware/auth";
 import { lookupOpenFoodFacts } from "../services/openfoodfacts";
 
 const router = Router();
 router.use(requireAuth);
+router.use(requireActiveSubscription);
 
 const lookupSchema = z.object({ barcode: z.string().min(3) });
 

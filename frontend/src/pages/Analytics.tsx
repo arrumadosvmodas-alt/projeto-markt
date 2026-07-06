@@ -50,8 +50,8 @@ export default function Analytics() {
       )}
 
       {highlights && (highlights.avgTicket > 0 || highlights.cheapestMarket) && (
-        <div className="mb-6 grid grid-cols-2 gap-4">
-          <Card className="p-4 flex flex-col justify-between h-28 border border-cream-200">
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <Card className="p-4 flex flex-col justify-between h-28 border border-cream-200 bg-white rounded-2xl">
             <div className="flex justify-between items-start">
               <span className="text-xs font-bold text-graphite-500 uppercase tracking-wider">Ticket Médio</span>
               <div className="bg-forest-50 p-1.5 rounded-lg text-forest-600">
@@ -66,12 +66,12 @@ export default function Analytics() {
               <p className="text-2xl font-black text-graphite-950 tracking-tight">
                 {formatBRL(highlights.avgTicket)}
               </p>
-              <p className="text-[10px] text-graphite-400 font-semibold mt-0.5">Média por compra realizada</p>
+              <p className="text-[10px] text-graphite-400 font-semibold mt-0.5">Média por compra</p>
             </div>
           </Card>
 
           {highlights.cheapestMarket && (
-            <Card className="p-4 flex flex-col justify-between h-28 border border-cream-200">
+            <Card className="p-4 flex flex-col justify-between h-28 border border-cream-200 bg-white rounded-2xl">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-bold text-graphite-500 uppercase tracking-wider">Mais Econômico</span>
                 <div className="bg-clay-50 p-1.5 rounded-lg text-clay-600">
@@ -95,7 +95,7 @@ export default function Analytics() {
       )}
 
       {hasAnyData && (
-        <Card className="mb-6 p-4 border border-cream-200">
+        <Card className="mb-4 p-4 border border-cream-200 bg-white rounded-2xl">
           <p className="mb-3 text-xs font-bold text-graphite-700 uppercase tracking-wider">
             Gasto {spending!.granularity === "weekly" ? "semanal" : "mensal"}
           </p>
@@ -104,21 +104,21 @@ export default function Analytics() {
       )}
 
       {categories && categories.length > 0 && (
-        <Card className="mb-6 p-4 border border-cream-200">
+        <Card className="mb-4 p-4 border border-cream-200 bg-white rounded-2xl">
           <p className="mb-3 text-xs font-bold text-graphite-700 uppercase tracking-wider">Gasto por categoria</p>
           <CategoryChart categories={categories} />
         </Card>
       )}
 
       {priceChanges && (priceChanges.highs.length > 0 || priceChanges.lows.length > 0) && (
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-4">
           <PriceChangeList title="Maiores altas" items={priceChanges.highs} tone="high" />
           <PriceChangeList title="Maiores quedas" items={priceChanges.lows} tone="low" />
         </div>
       )}
 
       {highlights && highlights.topBudgetProducts.length > 0 && (
-        <Card className="p-4 border border-cream-200">
+        <Card className="p-4 border border-cream-200 bg-white rounded-2xl">
           <p className="mb-4 text-xs font-bold text-graphite-700 uppercase tracking-wider">
             Itens que mais pesam no orçamento
           </p>
@@ -134,9 +134,9 @@ export default function Analytics() {
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cream-100 text-[10px] font-extrabold text-graphite-600">
                           {idx + 1}
                         </span>
-                        <span className="text-graphite-800 font-semibold">{p.name}</span>
+                        <span className="text-graphite-800 font-semibold truncate max-w-[150px]">{p.name}</span>
                       </div>
-                      <span className="font-bold text-graphite-900">{formatBRL(p.total)}</span>
+                      <span className="font-bold text-graphite-900 tabular-nums">{formatBRL(p.total)}</span>
                     </div>
                     <div className="h-2.5 w-full rounded-full bg-cream-100 overflow-hidden">
                       <div
