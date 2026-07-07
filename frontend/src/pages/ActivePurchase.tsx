@@ -147,16 +147,14 @@ export default function ActivePurchase({
     <div className="mx-auto max-w-md px-4 py-8">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <PageHeader title={purchase.market.name} subtitle={`${purchase.items.length} itens na compra`} />
-            <button
-              onClick={handleEditMarketName}
-              className="text-graphite-400 hover:text-forest-600 p-1 rounded-lg hover:bg-cream-100 transition -mt-6 cursor-pointer"
-              title="Editar nome do estabelecimento"
-            >
-              <PencilIcon />
-            </button>
-          </div>
+          <PageHeader title={purchase.market.name} subtitle={`${purchase.items.length} itens na compra`} />
+          <button
+            onClick={handleEditMarketName}
+            className="text-[11px] font-bold text-forest-600 hover:text-forest-700 cursor-pointer flex items-center gap-1 -mt-4 mb-2"
+          >
+            <span>Corrigir nome do estabelecimento</span>
+            <PencilIcon />
+          </button>
         </div>
         <Button
           variant="ghost"

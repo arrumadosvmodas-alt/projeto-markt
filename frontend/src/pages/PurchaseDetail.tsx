@@ -59,27 +59,14 @@ export default function PurchaseDetail() {
         </Link>
       </div>
 
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <PageHeader
-              title={purchase.market.name}
-              subtitle={new Date(purchase.completedAt!).toLocaleDateString("pt-BR", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            />
-            <button
-              onClick={handleEditMarketName}
-              className="text-graphite-400 hover:text-forest-600 p-1 rounded-lg hover:bg-cream-100 transition -mt-6 cursor-pointer"
-              title="Editar nome do estabelecimento"
-            >
-              <PencilIcon />
-            </button>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title={purchase.market.name}
+        subtitle={new Date(purchase.completedAt!).toLocaleDateString("pt-BR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}
+      />
 
       <Card className="p-4 border border-cream-200 bg-white rounded-2xl mb-6">
         <div className="flex items-baseline justify-between">
@@ -87,6 +74,17 @@ export default function PurchaseDetail() {
           <span className="text-2xl font-black text-forest-700 tabular-nums">
             {formatBRL(purchase.totalAmount)}
           </span>
+        </div>
+        <div className="mt-2.5 pt-2.5 border-t border-cream-100 flex items-center justify-between text-xs font-semibold text-graphite-500">
+          <span>Estabelecimento</span>
+          <button
+            onClick={handleEditMarketName}
+            className="flex items-center gap-1 text-forest-600 hover:text-forest-700 font-bold cursor-pointer"
+            title="Clique para editar"
+          >
+            <span>{purchase.market.name}</span>
+            <PencilIcon />
+          </button>
         </div>
         {purchase.budgetLimit && (
           <div className="mt-2.5 pt-2.5 border-t border-cream-100 flex items-center justify-between text-xs font-semibold text-graphite-500">
