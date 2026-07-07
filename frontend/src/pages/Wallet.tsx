@@ -37,11 +37,25 @@ interface HistoryPoint {
   debito: number; // actual spent
 }
 
+interface PriceChangeItem {
+  product: {
+    id: string;
+    name: string;
+    category: string | null;
+  };
+  previousPrice: number;
+  latestPrice: number;
+  deltaAbs: number;
+  deltaPct: number;
+}
+
 export default function Wallet() {
   const [status, setStatus] = useState<WalletStatus | null>(null);
   const [history, setHistory] = useState<HistoryPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [highs, setHighs] = useState<PriceChangeItem[]>([]);
+  const [lows, setLows] = useState<PriceChangeItem[]>([]);
 
   // Form states
   const [cycleDay, setCycleDay] = useState("5");
@@ -73,6 +87,14 @@ export default function Wallet() {
 
         const histData = await api.get<{ history: HistoryPoint[] }>("/wallet/history");
         setHistory(histData.history);
+
+        try {
+          const changes = await api.get<{ highs: PriceChangeItem[]; lows: PriceChangeItem[] }>("/analytics/price-changes?limit=3");
+          setHighs(changes.highs);
+          setLows(changes.lows);
+        } catch (e) {
+          console.error("Erro ao buscar alterações de preço:", e);
+        }
       }
     } catch (err) {
       console.error("Erro ao carregar dados da carteira:", err);
@@ -340,100 +362,167 @@ export default function Wallet() {
         </Card>
       )}
 
-      {/* CARD 4: HISTÓRICO DE CONSUMO (GRÁFICO DE LINHAS) */}
-      {history.length > 0 && (
-        <Card className="p-5 border border-cream-200 bg-white rounded-2xl shadow-sm">
-          <p className="font-bold text-graphite-900 text-sm mb-1">Evolução Crédito vs Débito</p>
-          <p className="text-[10px] text-graphite-500 font-semibold mb-4">Acompanhamento consolidado por mês de análise</p>
-
-          {/* SVG-based Line Chart */}
-          <div className="w-full h-44 flex items-center justify-center">
-            {(() => {
-              const maxVal = Math.max(...history.flatMap((pt) => [pt.credito, pt.debito]), 100);
-              const padding = 20;
-              const width = 340;
-              const height = 140;
-              
-              const pointsCount = history.length;
-              const stepX = (width - padding * 2) / (pointsCount - 1 || 1);
-              
-              // Map points to SVG coordinates
-              const creditPoints = history.map((pt, idx) => {
-                const x = padding + idx * stepX;
-                const y = height - padding - ((pt.credito / maxVal) * (height - padding * 2));
-                return { x, y };
-              });
-
-              const debitPoints = history.map((pt, idx) => {
-                const x = padding + idx * stepX;
-                const y = height - padding - ((pt.debito / maxVal) * (height - padding * 2));
-                return { x, y };
-              });
-
-              // Generate SVG path string
-              const creditPathStr = creditPoints.reduce((acc, pt, idx) => 
-                acc + (idx === 0 ? `M ${pt.x} ${pt.y}` : ` L ${pt.x} ${pt.y}`), "");
-
-              const debitPathStr = debitPoints.reduce((acc, pt, idx) => 
-                acc + (idx === 0 ? `M ${pt.x} ${pt.y}` : ` L ${pt.x} ${pt.y}`), "");
-
-              return (
-                <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
-                  {/* Grid Lines */}
-                  <line x1={padding} y1={padding} x2={width - padding} y2={padding} stroke="#f3f4f6" strokeWidth="1" />
-                  <line x1={padding} y1={height/2} x2={width - padding} y2={height/2} stroke="#f3f4f6" strokeWidth="1" />
-                  <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#e5e7eb" strokeWidth="1" />
-
-                  {/* Credit Line (Estimated Budget) */}
-                  <path d={creditPathStr} fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                  {/* Debit Line (Actual Consumption) */}
-                  <path d={debitPathStr} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-
-                  {/* Dots for Credit */}
-                  {creditPoints.map((pt, idx) => (
-                    <circle key={`cr-${idx}`} cx={pt.x} cy={pt.y} r="3.5" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
-                  ))}
-
-                  {/* Dots for Debit */}
-                  {debitPoints.map((pt, idx) => (
-                    <circle key={`db-${idx}`} cx={pt.x} cy={pt.y} r="3.5" fill="#6366f1" stroke="#fff" strokeWidth="1.5" />
-                  ))}
-
-                  {/* Labels */}
-                  {history.map((pt, idx) => {
-                    const x = padding + idx * stepX;
-                    return (
-                      <text 
-                        key={`lbl-${idx}`} 
-                        x={x} 
-                        y={height - 4} 
-                        fontSize="8" 
-                        fontWeight="bold" 
-                        fill="#6b7280" 
-                        textAnchor="middle"
-                      >
-                        {pt.label}
-                      </text>
-                    );
-                  })}
-                </svg>
-              );
-            })()}
+      {/* CARD 4: VARIAÇÕES DE PREÇO (ALTAS E BAIXAS QUE INFLUENCIARAM O MÊS) */}
+      {(highs.length > 0 || lows.length > 0) && (
+        <Card className="p-5 border border-cream-200 bg-white rounded-2xl shadow-sm space-y-4">
+          <div>
+            <p className="font-bold text-graphite-900 text-sm">Altas e Baixas que Influenciaram o Mês</p>
+            <p className="text-[10px] text-graphite-500 font-semibold mt-0.5">Comparativo de preços nas últimas compras do mercado</p>
           </div>
 
-          {/* Legend */}
-          <div className="flex justify-center items-center gap-4 mt-3 text-[10px] font-bold">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
-              <span className="text-graphite-600">Créditos (Limites)</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#6366f1]" />
-              <span className="text-graphite-600">Consumo (Débitos)</span>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Maiores Altas */}
+            {highs.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[11px] font-bold text-clay-600 flex items-center gap-1">
+                  <span>📈 Altas de Preço</span>
+                </p>
+                <div className="space-y-1.5">
+                  {highs.map((item, idx) => (
+                    <div key={idx} className="text-[10px] font-semibold text-graphite-750">
+                      <p className="truncate font-bold" title={item.product.name}>{item.product.name}</p>
+                      <p className="text-[9px] text-clay-600 font-bold mt-0.5">
+                        +{item.deltaPct.toFixed(1)}% ({formatBRL(item.previousPrice)} → {formatBRL(item.latestPrice)})
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Maiores Baixas */}
+            {lows.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[11px] font-bold text-forest-600 flex items-center gap-1">
+                  <span>📉 Baixas de Preço</span>
+                </p>
+                <div className="space-y-1.5">
+                  {lows.map((item, idx) => (
+                    <div key={idx} className="text-[10px] font-semibold text-graphite-750">
+                      <p className="truncate font-bold" title={item.product.name}>{item.product.name}</p>
+                      <p className="text-[9px] text-forest-600 font-bold mt-0.5">
+                        {item.deltaPct.toFixed(1)}% ({formatBRL(item.previousPrice)} → {formatBRL(item.latestPrice)})
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </Card>
       )}
+
+      {/* CARD 5: HISTÓRICO DE CONSUMO (GRÁFICO DE LINHAS) */}
+      {(() => {
+        // Lógica de Padding para garantir que o gráfico seja exibido desde o primeiro dia de uso
+        let chartPoints = [...history];
+        if (chartPoints.length === 0) {
+          const currentMonthName = new Date(status?.cycleStartDate || "").toLocaleDateString("pt-BR", { month: "short" });
+          chartPoints = [
+            { label: "Início", credito: 0, debito: 0 },
+            { label: currentMonthName || "Mês Atual", credito: totalLimit, debito: totalSpent }
+          ];
+        } else if (chartPoints.length === 1) {
+          chartPoints = [
+            { label: "Início", credito: 0, debito: 0 },
+            ...chartPoints
+          ];
+        }
+
+        return (
+          <Card className="p-5 border border-cream-200 bg-white rounded-2xl shadow-sm">
+            <p className="font-bold text-graphite-900 text-sm mb-1">Evolução Crédito vs Débito</p>
+            <p className="text-[10px] text-graphite-500 font-semibold mb-4">Acompanhamento consolidado do orçamento e gastos</p>
+
+            {/* SVG-based Line Chart */}
+            <div className="w-full h-44 flex items-center justify-center">
+              {(() => {
+                const maxVal = Math.max(...chartPoints.flatMap((pt) => [pt.credito, pt.debito]), 100);
+                const padding = 20;
+                const width = 340;
+                const height = 140;
+                
+                const pointsCount = chartPoints.length;
+                const stepX = (width - padding * 2) / (pointsCount - 1 || 1);
+                
+                // Map points to SVG coordinates
+                const creditPoints = chartPoints.map((pt, idx) => {
+                  const x = padding + idx * stepX;
+                  const y = height - padding - ((pt.credito / maxVal) * (height - padding * 2));
+                  return { x, y };
+                });
+
+                const debitPoints = chartPoints.map((pt, idx) => {
+                  const x = padding + idx * stepX;
+                  const y = height - padding - ((pt.debito / maxVal) * (height - padding * 2));
+                  return { x, y };
+                });
+
+                // Generate SVG path string
+                const creditPathStr = creditPoints.reduce((acc, pt, idx) => 
+                  acc + (idx === 0 ? `M ${pt.x} ${pt.y}` : ` L ${pt.x} ${pt.y}`), "");
+
+                const debitPathStr = debitPoints.reduce((acc, pt, idx) => 
+                  acc + (idx === 0 ? `M ${pt.x} ${pt.y}` : ` L ${pt.x} ${pt.y}`), "");
+
+                return (
+                  <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
+                    {/* Grid Lines */}
+                    <line x1={padding} y1={padding} x2={width - padding} y2={padding} stroke="#f3f4f6" strokeWidth="1" />
+                    <line x1={padding} y1={height/2} x2={width - padding} y2={height/2} stroke="#f3f4f6" strokeWidth="1" />
+                    <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#e5e7eb" strokeWidth="1" />
+
+                    {/* Credit Line (Estimated Budget) */}
+                    <path d={creditPathStr} fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    {/* Debit Line (Actual Consumption) */}
+                    <path d={debitPathStr} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+                    {/* Dots for Credit */}
+                    {creditPoints.map((pt, idx) => (
+                      <circle key={`cr-${idx}`} cx={pt.x} cy={pt.y} r="3.5" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
+                    ))}
+
+                    {/* Dots for Debit */}
+                    {debitPoints.map((pt, idx) => (
+                      <circle key={`db-${idx}`} cx={pt.x} cy={pt.y} r="3.5" fill="#6366f1" stroke="#fff" strokeWidth="1.5" />
+                    ))}
+
+                    {/* Labels */}
+                    {chartPoints.map((pt, idx) => {
+                      const x = padding + idx * stepX;
+                      return (
+                        <text 
+                          key={`lbl-${idx}`} 
+                          x={x} 
+                          y={height - 4} 
+                          fontSize="8" 
+                          fontWeight="bold" 
+                          fill="#6b7280" 
+                          textAnchor="middle"
+                        >
+                          {pt.label}
+                        </text>
+                      );
+                    })}
+                  </svg>
+                );
+              })()}
+            </div>
+
+            {/* Legend */}
+            <div className="flex justify-center items-center gap-4 mt-3 text-[10px] font-bold">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
+                <span className="text-graphite-600">Créditos (Limites)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-[#6366f1]" />
+                <span className="text-graphite-600">Consumo (Débitos)</span>
+              </div>
+            </div>
+          </Card>
+        );
+      })()}
     </div>
   );
 }
