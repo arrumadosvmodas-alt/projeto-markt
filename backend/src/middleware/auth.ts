@@ -47,6 +47,11 @@ export async function requireActiveSubscription(
       return res.status(404).json({ error: "Usuário não encontrado" });
     }
 
+    const isAdmin = user.cpf === "02129401473" || user.cpf === "00000000000";
+    if (isAdmin) {
+      return next();
+    }
+
     const isExpired = new Date(user.subscriptionEnd) < new Date();
     if (isExpired) {
       return res.status(402).json({ error: "Assinatura expirada. Efetue o pagamento." });

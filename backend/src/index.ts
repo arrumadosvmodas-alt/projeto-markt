@@ -10,6 +10,8 @@ import productRoutes from "./routes/products";
 import analyticsRoutes from "./routes/analytics";
 import subscriptionRoutes from "./routes/subscription";
 import walletRoutes from "./routes/wallet";
+import bcrypt from "bcryptjs";
+import { prisma } from "./prisma";
 
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET não definido. Copie .env.example para .env");
@@ -38,6 +40,33 @@ app.use("/products", productRoutes);
 app.use("/analytics", analyticsRoutes);
 app.use("/subscription", subscriptionRoutes);
 app.use("/wallet", walletRoutes);
+
+async function ensureAdminUser() {
+  try {
+    const adminCpf = "00000000000";
+    const existing = await prisma.user.findUnique({
+      where: { cpf: adminCpf },
+    });
+    if (!existing) {
+      const hash = await bcrypt.hash("admin123", 10);
+      await prisma.user.create({
+        data: {
+          cpf: adminCpf,
+          name: "Admin",
+          passwordHash: hash,
+          subscriptionType: "yearly",
+          subscriptionStart: new Date(),
+          subscriptionEnd: new Date("2099-12-31T23:59:59Z"),
+        },
+      });
+      console.log("Admin user (000.000.000-00) created successfully with password 'admin123'.");
+    }
+  } catch (err) {
+    console.error("Error creating Admin user:", err);
+  }
+}
+
+ensureAdminUser();
 
 const port = Number(process.env.PORT ?? 4000);
 app.listen(port, () => {

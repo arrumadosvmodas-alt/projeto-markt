@@ -122,11 +122,41 @@ export default function ActivePurchase({
     }
   }
 
+  async function handleEditMarketName() {
+    const newName = window.prompt("Editar nome do estabelecimento:", purchase.market.name);
+    if (newName === null) return;
+    if (!newName.trim() || newName.trim().length < 2) {
+      alert("Nome inválido! Deve conter pelo menos 2 caracteres.");
+      return;
+    }
+
+    try {
+      const data = await api.put<{ market: any }>(`/markets/${purchase.market.id}`, {
+        name: newName.trim(),
+      });
+      onChange({
+        ...purchase,
+        market: data.market,
+      });
+    } catch {
+      alert("Erro ao atualizar o nome do estabelecimento.");
+    }
+  }
+
   return (
     <div className="mx-auto max-w-md px-4 py-8">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
-          <PageHeader title={purchase.market.name} subtitle={`${purchase.items.length} itens na compra`} />
+          <div className="flex items-center gap-1.5">
+            <PageHeader title={purchase.market.name} subtitle={`${purchase.items.length} itens na compra`} />
+            <button
+              onClick={handleEditMarketName}
+              className="text-graphite-400 hover:text-forest-600 p-1 rounded-lg hover:bg-cream-100 transition -mt-6 cursor-pointer"
+              title="Editar nome do estabelecimento"
+            >
+              <PencilIcon />
+            </button>
+          </div>
         </div>
         <Button
           variant="ghost"
@@ -839,6 +869,15 @@ function PaymentForm({
         </div>
       </form>
     </Card>
+  );
+}
+
+function PencilIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
   );
 }
 

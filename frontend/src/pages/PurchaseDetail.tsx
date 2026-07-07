@@ -10,26 +10,76 @@ export default function PurchaseDetail() {
 
   useEffect(() => {
     if (!id) return;
-    api.get<{ purchase: Purchase }>(`/purchases/${id}`).then((data) => setPurchase(data.purchase));
+    api.get<{ purchase: Purchase }>(`/purchases/${id}`).then((res) => {
+      setPurchase(res.purchase);
+    });
   }, [id]);
 
+  async function handleEditMarketName() {
+    if (!purchase) return;
+    const newName = window.prompt("Editar nome do estabelecimento:", purchase.market.name);
+    if (newName === null) return;
+    if (!newName.trim() || newName.trim().length < 2) {
+      alert("Nome inválido! Deve conter pelo menos 2 caracteres.");
+      return;
+    }
+
+    try {
+      const data = await api.put<{ market: any }>(`/markets/${purchase.market.id}`, {
+        name: newName.trim(),
+      });
+      setPurchase({
+        ...purchase,
+        market: data.market,
+      });
+    } catch {
+      alert("Erro ao atualizar o nome do estabelecimento.");
+    }
+  }
+
   if (!purchase) {
-    return <div className="px-4 py-8 text-center text-graphite-500">Carregando...</div>;
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-forest-500 border-t-transparent" />
+      </div>
+    );
   }
 
   return (
     <div className="mx-auto max-w-md px-4 py-8">
-      <Link to="/historico" className="mb-4 inline-block text-sm font-semibold text-forest-600 hover:text-forest-700 hover:underline">
-        ← Voltar ao histórico
-      </Link>
-      <PageHeader
-        title={purchase.market.name}
-        subtitle={
-          purchase.completedAt
-            ? new Date(purchase.completedAt).toLocaleString("pt-BR")
-            : undefined
-        }
-      />
+      <div className="mb-4">
+        <Link
+          to="/historico"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-graphite-500 hover:text-graphite-700 hover:underline"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3">
+            <path d="M19 12H5M5 12l6-6M5 12l6 6" />
+          </svg>
+          Voltar para histórico
+        </Link>
+      </div>
+
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <PageHeader
+              title={purchase.market.name}
+              subtitle={new Date(purchase.completedAt!).toLocaleDateString("pt-BR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            />
+            <button
+              onClick={handleEditMarketName}
+              className="text-graphite-400 hover:text-forest-600 p-1 rounded-lg hover:bg-cream-100 transition -mt-6 cursor-pointer"
+              title="Editar nome do estabelecimento"
+            >
+              <PencilIcon />
+            </button>
+          </div>
+        </div>
+      </div>
 
       <Card className="p-4 border border-cream-200 bg-white rounded-2xl mb-6">
         <div className="flex items-baseline justify-between">
@@ -94,5 +144,13 @@ export default function PurchaseDetail() {
       </div>
     </div>
   );
+}
 
+function PencilIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
 }

@@ -104,4 +104,27 @@ router.get("/mine", async (req: AuthedRequest, res) => {
   res.json({ markets });
 });
 
+const updateSchema = z.object({
+  name: z.string().min(2),
+});
+
+router.put("/:id", async (req: AuthedRequest, res) => {
+  const parsed = updateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Nome inválido" });
+  }
+
+  const market = await prisma.market.findUnique({
+    where: { id: req.params.id },
+  });
+  if (!market) return res.status(404).json({ error: "Estabelecimento não encontrado" });
+
+  const updated = await prisma.market.update({
+    where: { id: req.params.id },
+    data: { name: parsed.data.name },
+  });
+
+  res.json({ market: updated });
+});
+
 export default router;

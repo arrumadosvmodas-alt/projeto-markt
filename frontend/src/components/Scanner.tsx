@@ -14,9 +14,10 @@ export function Scanner({ onDetected, onClose, onManual }: ScannerProps) {
   const [manualCode, setManualCode] = useState("");
   const [torchEnabled, setTorchEnabled] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("markt_torch_preference") === "true";
+      const pref = localStorage.getItem("markt_torch_preference");
+      return pref !== "false"; // Por padrão a lanterna inicia ativada (true) a menos que explicitamente desligada (false)
     }
-    return false;
+    return true;
   });
 
   useEffect(() => {
@@ -84,6 +85,9 @@ export function Scanner({ onDetected, onClose, onManual }: ScannerProps) {
 
   function handleVideoPlay() {
     setTorch(torchEnabled);
+    // Timers de redundância para garantir ativação caso o stream demore a sincronizar
+    setTimeout(() => setTorch(torchEnabled), 300);
+    setTimeout(() => setTorch(torchEnabled), 800);
   }
 
   function submitManual(e: React.FormEvent) {
