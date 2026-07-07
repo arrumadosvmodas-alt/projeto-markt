@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../lib/auth-context";
 import { api } from "../lib/api";
+import { openCheckout } from "../lib/checkout";
 import { Button, Card, PageHeader } from "../components/ui";
 
 export default function Billing() {
@@ -14,9 +15,10 @@ export default function Billing() {
     try {
       const data = await api.post<{ initPoint: string }>("/subscription/create-preference", {
         planType,
+        redirectUrl: window.location.origin,
       });
-      // Redirect to Mercado Pago checkout preference url (or simulated payment url)
-      window.location.href = data.initPoint;
+      // Abre o checkout do Mercado Pago fora da WebView (evita bloqueio de CSP)
+      openCheckout(data.initPoint);
     } catch (err) {
       alert("Erro ao iniciar assinatura.");
       console.error(err);

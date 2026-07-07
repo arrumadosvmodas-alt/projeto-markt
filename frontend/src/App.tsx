@@ -9,6 +9,8 @@ import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
 import Billing from "./pages/Billing";
 import CheckoutSimulator from "./pages/CheckoutSimulator";
+import PaymentCallback from "./pages/PaymentCallback";
+import Wallet from "./pages/Wallet";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
 import "./styles/design-system.css";
@@ -85,6 +87,24 @@ function App() {
           element={
             <ProtectedRoute allowExpired>
               <CheckoutSimulator />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment-callback"
+          element={
+            <ProtectedRoute allowExpired>
+              <PaymentCallback />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/carteira"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Wallet />
+              </Layout>
             </ProtectedRoute>
           }
         />

@@ -342,7 +342,14 @@ export default function ActivePurchase({
         </Button>
       )}
       {step.kind === "scanning" && (
-        <Scanner onDetected={handleBarcode} onClose={() => setStep({ kind: "idle" })} />
+        <Scanner 
+          onDetected={handleBarcode} 
+          onClose={() => setStep({ kind: "idle" })} 
+          onManual={() => {
+            const virtualBarcode = "manual-" + Date.now();
+            setStep({ kind: "manual-product", barcode: virtualBarcode });
+          }}
+        />
       )}
     </div>
   );
@@ -725,7 +732,14 @@ function PaymentForm({
       if (cash > 0) detailsList.push(`${formatBRL(cash)} À vista`);
       if (credit > 0) detailsList.push(`${formatBRL(credit)} Crédito`);
       if (voucher > 0) detailsList.push(`${formatBRL(voucher)} Alimentação`);
-      onConfirm("misto", detailsList.join(", "));
+      
+      const jsonDetails = JSON.stringify({
+        a_vista: cash,
+        credito: credit,
+        alimentacao: voucher,
+        text: detailsList.join(", ")
+      });
+      onConfirm("misto", jsonDetails);
     } else {
       onConfirm(method);
     }

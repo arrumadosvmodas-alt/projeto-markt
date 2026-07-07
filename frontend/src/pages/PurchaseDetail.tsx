@@ -57,7 +57,14 @@ export default function PurchaseDetail() {
             </div>
             {purchase.paymentDetails && (
               <div className="text-[10px] text-graphite-400 font-semibold text-right mt-0.5 italic">
-                {purchase.paymentDetails}
+                {(() => {
+                  try {
+                    const parsed = JSON.parse(purchase.paymentDetails);
+                    return parsed.text || purchase.paymentDetails;
+                  } catch {
+                    return purchase.paymentDetails;
+                  }
+                })()}
               </div>
             )}
           </div>

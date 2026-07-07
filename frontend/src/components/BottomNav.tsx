@@ -4,6 +4,7 @@ const items = [
   { to: "/", label: "Comprar", icon: CartIcon },
   { to: "/historico", label: "Histórico", icon: HistoryIcon },
   { to: "/analises", label: "Análises", icon: ChartIcon },
+  { to: "/carteira", label: "Carteira", icon: WalletIcon },
   { to: "/perfil", label: "Perfil", icon: UserIcon },
 ];
 
@@ -69,6 +70,15 @@ function UserIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function WalletIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <line x1="12" y1="12" x2="20" y2="12" />
     </svg>
   );
 }

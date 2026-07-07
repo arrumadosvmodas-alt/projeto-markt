@@ -42,7 +42,7 @@ async function getAuthUser(req: any, res: any, next: any) {
 
 // Create Mercado Pago Preference
 router.post("/create-preference", getAuthUser, async (req: any, res) => {
-  const { planType } = req.body;
+  const { planType, redirectUrl } = req.body;
   if (planType !== "monthly" && planType !== "yearly") {
     return res.status(400).json({ error: "Plano inválido" });
   }
@@ -52,6 +52,7 @@ router.post("/create-preference", getAuthUser, async (req: any, res) => {
 
   const mpToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
   if (mpToken) {
+    const originUrl = redirectUrl || "https://markt-frontend.onrender.com";
     try {
       const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
         method: "POST",
@@ -69,9 +70,9 @@ router.post("/create-preference", getAuthUser, async (req: any, res) => {
             }
           ],
           back_urls: {
-            success: "markt-app://payment-callback?status=success&plan=" + planType,
-            failure: "markt-app://payment-callback?status=failure&plan=" + planType,
-            pending: "markt-app://payment-callback?status=pending&plan=" + planType
+            success: `${originUrl}/payment-callback?status=success&plan=${planType}`,
+            failure: `${originUrl}/payment-callback?status=failure&plan=${planType}`,
+            pending: `${originUrl}/payment-callback?status=pending&plan=${planType}`
           },
           auto_return: "approved"
         })

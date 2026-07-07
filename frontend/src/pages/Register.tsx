@@ -4,6 +4,7 @@ import { useAuth, ApiError } from "../lib/auth-context";
 import { formatCpf, isValidCpf } from "../lib/cpf";
 import { Button, TextInput, Logo, Card } from "../components/ui";
 import { api } from "../lib/api";
+import { openCheckout } from "../lib/checkout";
 
 export default function Register() {
   const { register } = useAuth();
@@ -37,7 +38,7 @@ export default function Register() {
         const pref = await api.post<{ initPoint: string }>("/subscription/create-preference", {
           planType,
         });
-        window.location.href = pref.initPoint;
+        openCheckout(pref.initPoint);
       } else {
         navigate("/", { replace: true });
       }

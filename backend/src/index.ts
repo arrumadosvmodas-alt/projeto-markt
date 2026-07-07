@@ -9,6 +9,7 @@ import purchaseRoutes from "./routes/purchases";
 import productRoutes from "./routes/products";
 import analyticsRoutes from "./routes/analytics";
 import subscriptionRoutes from "./routes/subscription";
+import walletRoutes from "./routes/wallet";
 
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET não definido. Copie .env.example para .env");
@@ -36,6 +37,7 @@ app.use("/purchases", purchaseRoutes);
 app.use("/products", productRoutes);
 app.use("/analytics", analyticsRoutes);
 app.use("/subscription", subscriptionRoutes);
+app.use("/wallet", walletRoutes);
 
 const port = Number(process.env.PORT ?? 4000);
 app.listen(port, () => {

@@ -21,6 +21,9 @@ model User {
   subscriptionEnd    DateTime  @default(now())
   queuedPlan         String? // "monthly" | "yearly"
   queuedPlanEnd      DateTime?
+  walletCycleDay     Int           @default(5)
+  walletLastPrompted DateTime?
+  walletLimits       WalletLimit[]
 }
 
 model Market {
@@ -85,4 +88,20 @@ model PurchaseItem {
 
   @@index([productId, createdAt])
   @@index([purchaseId])
+}
+
+model WalletLimit {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  cycleStartDate   DateTime
+  cycleEndDate     DateTime
+  limitDebito      Float
+  limitCredito     Float
+  limitAlimentacao Float
+  limitOutros      Float
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, cycleStartDate])
 }
