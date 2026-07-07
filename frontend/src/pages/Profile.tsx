@@ -59,6 +59,7 @@ export default function Profile() {
   });
 
   const initials = user?.name ? user.name.charAt(0).toUpperCase() : "";
+  const isAdmin = user?.cpf === "02129401473" || user?.cpf === "00000000000";
 
   // Event handler for photo selection
   async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -217,6 +218,24 @@ export default function Profile() {
           </Button>
         </div>
       </Card>
+
+      {/* CARD DO ADMINISTRADOR */}
+      {isAdmin && (
+        <Card className="p-6 border border-amber-200 bg-amber-50/10 rounded-2xl">
+          <div className="mb-4">
+            <p className="font-bold text-amber-900 flex items-center gap-1.5">
+              <span>👑 Painel de Administração</span>
+            </p>
+            <p className="text-xs text-amber-700 mt-0.5">Gerencie os acessos e assinaturas dos usuários do sistema</p>
+          </div>
+          <Button 
+            onClick={() => navigate("/admin/users")} 
+            className="w-full bg-amber-600 border border-amber-700 hover:bg-amber-700 text-white shadow-sm"
+          >
+            Gerenciar Usuários
+          </Button>
+        </Card>
+      )}
 
       {/* BOTÃO DE LOGOUT */}
       <Button

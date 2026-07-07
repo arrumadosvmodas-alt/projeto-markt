@@ -10,6 +10,7 @@ import productRoutes from "./routes/products";
 import analyticsRoutes from "./routes/analytics";
 import subscriptionRoutes from "./routes/subscription";
 import walletRoutes from "./routes/wallet";
+import adminRoutes from "./routes/admin";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
@@ -40,6 +41,7 @@ app.use("/products", productRoutes);
 app.use("/analytics", analyticsRoutes);
 app.use("/subscription", subscriptionRoutes);
 app.use("/wallet", walletRoutes);
+app.use("/admin", adminRoutes);
 
 async function ensureAdminUser() {
   try {

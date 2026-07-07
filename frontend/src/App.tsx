@@ -11,6 +11,7 @@ import Billing from "./pages/Billing";
 import CheckoutSimulator from "./pages/CheckoutSimulator";
 import PaymentCallback from "./pages/PaymentCallback";
 import Wallet from "./pages/Wallet";
+import AdminDashboard from "./pages/AdminDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
 import "./styles/design-system.css";
@@ -104,6 +105,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <Wallet />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AdminDashboard />
               </Layout>
             </ProtectedRoute>
           }
