@@ -63,8 +63,24 @@ async function ensureAdminUser() {
       });
       console.log("Admin user (000.000.000-00) created successfully with password 'admin123'.");
     }
+
+    // Estende a assinatura do Heitor se existir no banco
+    const heitorCpf = "02129401473";
+    const heitor = await prisma.user.findUnique({
+      where: { cpf: heitorCpf },
+    });
+    if (heitor && new Date(heitor.subscriptionEnd) < new Date("2099-01-01")) {
+      await prisma.user.update({
+        where: { cpf: heitorCpf },
+        data: {
+          subscriptionType: "yearly",
+          subscriptionEnd: new Date("2099-12-31T23:59:59Z"),
+        },
+      });
+      console.log("Heitor's subscription extended successfully.");
+    }
   } catch (err) {
-    console.error("Error creating Admin user:", err);
+    console.error("Error in ensureAdminUser:", err);
   }
 }
 
