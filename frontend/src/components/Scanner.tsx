@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader, BarcodeFormat, DecodeHintType } from "@zxing/library";
+import { CapacitorFlash } from "@capgo/capacitor-flash";
 import { Button, TextInput } from "./ui";
 
 interface ScannerProps {
@@ -66,7 +67,23 @@ export function Scanner({ onDetected, onClose, onManual }: ScannerProps) {
     setTorch(torchEnabled);
   }, [torchEnabled]);
 
-  function setTorch(enabled: boolean) {
+  async function setTorch(enabled: boolean) {
+    // 1. Tenta acionamento nativo via plugin do Capacitor (Android/iOS)
+    try {
+      const { value: isAvailable } = await CapacitorFlash.isAvailable();
+      if (isAvailable) {
+        if (enabled) {
+          await CapacitorFlash.switchOn({ intensity: 1.0 });
+        } else {
+          await CapacitorFlash.switchOff();
+        }
+        return;
+      }
+    } catch (e) {
+      console.log("CapacitorFlash plugin failed/unavailable, falling back to MediaStream:", e);
+    }
+
+    // 2. Fallback usando API do navegador para web/PWA
     const stream = videoRef.current?.srcObject as MediaStream | null;
     const track = stream?.getVideoTracks()[0];
     if (track) {

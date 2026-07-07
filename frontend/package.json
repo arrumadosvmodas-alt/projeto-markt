@@ -13,6 +13,7 @@
     "@capacitor/android": "^8.4.1",
     "@capacitor/cli": "^8.4.1",
     "@capacitor/core": "^8.4.1",
+    "@capgo/capacitor-flash": "^8.0.34",
     "@zxing/library": "^0.23.0",
     "leaflet": "^1.9.4",
     "react": "^19.2.7",
