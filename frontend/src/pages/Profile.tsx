@@ -249,6 +249,16 @@ export default function Profile() {
         <SignOutIcon />
         Fazer logout
       </Button>
+
+      {/* LINK DO SAC NO RODAPÉ */}
+      <div className="mt-8 text-center">
+        <a 
+          href="mailto:linnsheitor@gmail.com?subject=Suporte%20Markt"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-forest-600 hover:text-forest-700 bg-forest-50/50 hover:bg-forest-50 border border-forest-100/50 px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-sm"
+        >
+          <span>📧 SAC - linnsheitor@gmail.com</span>
+        </a>
+      </div>
     </div>
   );
 }
