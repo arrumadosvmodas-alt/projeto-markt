@@ -12,6 +12,7 @@ import CheckoutSimulator from "./pages/CheckoutSimulator";
 import PaymentCallback from "./pages/PaymentCallback";
 import Wallet from "./pages/Wallet";
 import AdminDashboard from "./pages/AdminDashboard";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
 import "./styles/design-system.css";
@@ -20,9 +21,10 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        {/* Auth Routes */}
+        {/* Auth / Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
 
         {/* Compras (modo individual) */}
         <Route
