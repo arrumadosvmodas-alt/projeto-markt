@@ -61,6 +61,29 @@ export default function Profile() {
   const initials = user?.name ? user.name.charAt(0).toUpperCase() : "";
   const isAdmin = user?.cpf === "02129401473" || user?.cpf === "00000000000";
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmationText, setDeleteConfirmationText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleDeleteAccount() {
+    if (deleteConfirmationText.trim().toUpperCase() !== "EXCLUIR") {
+      alert("Por favor, digite EXCLUIR para confirmar.");
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      await api.delete("/auth/profile");
+      logout();
+      navigate("/login", { replace: true });
+    } catch (err) {
+      alert("Erro ao excluir conta. Tente novamente.");
+      console.error(err);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  }
+
   // Event handler for photo selection
   async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -259,6 +282,71 @@ export default function Profile() {
           <span>📧 SAC - linnsheitor@gmail.com</span>
         </a>
       </div>
+
+      {/* BOTÃO PARA EXCLUSÃO DE CONTA */}
+      <div className="mt-12 mb-6 text-center animate-fade-in">
+        <button
+          onClick={() => {
+            setDeleteConfirmationText("");
+            setShowDeleteModal(true);
+          }}
+          className="text-xs font-bold text-clay-400 hover:text-clay-600 underline underline-offset-4 cursor-pointer transition-all"
+        >
+          Excluir minha conta permanentemente
+        </button>
+      </div>
+
+      {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DE CONTA */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-graphite-900/60 p-4 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-sm rounded-3xl border border-cream-200 bg-white p-6 shadow-2xl">
+            <p className="text-lg font-extrabold text-graphite-900 flex items-center gap-2">
+              <span>⚠️ Excluir Conta?</span>
+            </p>
+            
+            <div className="mt-4 space-y-3.5 text-xs text-graphite-600 font-medium leading-relaxed text-left">
+              <p className="bg-amber-50 border border-amber-200 text-amber-900 p-3 rounded-2xl">
+                <strong>ℹ️ Inatividade vs Exclusão:</strong>
+                <br />
+                Se você apenas parar de usar o app (ficar inativo), seu histórico de compras, mercados e orçamentos <strong>permanecerão salvos</strong> para quando você voltar.
+              </p>
+              <p className="bg-clay-50 border border-clay-200 text-clay-950 p-3 rounded-2xl">
+                <strong>🚨 Apagar tudo permanentemente:</strong> Ao confirmar a exclusão, todo o histórico de compras, itens e limites financeiros serão <strong>excluídos permanentemente</strong> e não poderão ser recuperados.
+              </p>
+              <p className="px-1 text-graphite-500 font-semibold">
+                Para prosseguir e confirmar a perda total dos dados, digite <strong className="text-clay-600">EXCLUIR</strong> abaixo:
+              </p>
+            </div>
+
+            <div className="mt-4">
+              <input
+                type="text"
+                placeholder="Digite EXCLUIR para confirmar"
+                value={deleteConfirmationText}
+                onChange={(e) => setDeleteConfirmationText(e.target.value)}
+                className="w-full p-3 border border-cream-200 rounded-xl bg-white text-sm font-bold text-center uppercase text-clay-600 focus:outline-none focus:border-clay-500 tracking-widest placeholder:tracking-normal placeholder:font-medium transition-all"
+              />
+            </div>
+
+            <div className="mt-6 flex flex-col gap-2">
+              <Button
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmationText.trim().toUpperCase() !== "EXCLUIR" || isDeleting}
+                className="w-full bg-clay-600 border border-clay-700 hover:bg-clay-700 text-white shadow-sm"
+              >
+                {isDeleting ? "Excluindo..." : "Confirmar e Excluir Tudo"}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowDeleteModal(false)}
+                className="w-full text-graphite-500 hover:bg-cream-50"
+              >
+                Cancelar e Manter Conta
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

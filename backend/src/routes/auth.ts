@@ -183,4 +183,47 @@ router.put("/profile", async (req, res) => {
   }
 });
 
+router.delete("/profile", async (req, res) => {
+  const header = req.headers.authorization;
+  const token = header?.startsWith("Bearer ") ? header.slice(7) : null;
+  if (!token) return res.status(401).json({ error: "Token ausente" });
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+      sub: string;
+    };
+    const userId = payload.sub;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    // Executa a exclusão em lote de todas as informações em uma transação
+    await prisma.$transaction([
+      prisma.purchaseItem.deleteMany({
+        where: { purchase: { userId } }
+      }),
+      prisma.purchase.deleteMany({
+        where: { userId }
+      }),
+      prisma.walletLimit.deleteMany({
+        where: { userId }
+      }),
+      prisma.market.updateMany({
+        where: { createdByUserId: userId },
+        data: { createdByUserId: null }
+      }),
+      prisma.user.delete({
+        where: { id: userId }
+      })
+    ]);
+
+    res.json({ message: "Conta excluída com sucesso" });
+  } catch (error: any) {
+    console.error("Erro ao excluir conta:", error);
+    res.status(500).json({ error: error.message ?? "Erro ao excluir conta" });
+  }
+});
+
 export default router;
