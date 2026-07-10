@@ -13,6 +13,8 @@ import PaymentCallback from "./pages/PaymentCallback";
 import Wallet from "./pages/Wallet";
 import AdminDashboard from "./pages/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
 import "./styles/design-system.css";
@@ -24,6 +26,8 @@ function App() {
         {/* Auth / Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
+        <Route path="/esqueci-senha" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
 
         {/* Compras (modo individual) */}

@@ -2,8 +2,10 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
+import crypto from "crypto";
 import { prisma } from "../prisma";
 import { isValidCpf, normalizeCpf } from "../services/cpf";
+import { sendResetEmail } from "../services/email";
 
 const router = Router();
 
@@ -11,6 +13,7 @@ const registerSchema = z.object({
   cpf: z.string(),
   name: z.string().min(2),
   password: z.string().min(6),
+  email: z.string().email("E-mail inválido"),
   planType: z.enum(["free_trial", "monthly", "yearly"]).optional(),
 });
 
@@ -45,6 +48,7 @@ async function checkAndSerializeUser(user: any) {
     id: activeUser.id,
     name: activeUser.name,
     cpf: activeUser.cpf,
+    email: activeUser.email,
     avatarUrl: activeUser.avatarUrl,
     subscriptionType: activeUser.subscriptionType,
     subscriptionStart: activeUser.subscriptionStart,
@@ -85,6 +89,7 @@ router.post("/register", async (req, res) => {
         cpf,
         name,
         passwordHash,
+        email: parsed.data.email,
         subscriptionType: planType,
         subscriptionStart: now,
         subscriptionEnd,
@@ -223,6 +228,79 @@ router.delete("/profile", async (req, res) => {
   } catch (error: any) {
     console.error("Erro ao excluir conta:", error);
     res.status(500).json({ error: error.message ?? "Erro ao excluir conta" });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { cpf } = req.body;
+    if (!cpf) return res.status(400).json({ error: "CPF obrigatório" });
+
+    const normalized = normalizeCpf(cpf);
+    const user = await prisma.user.findUnique({ where: { cpf: normalized } });
+    if (!user) {
+      return res.status(404).json({ error: "Usuário com este CPF não foi encontrado" });
+    }
+    if (!user.email) {
+      return res.status(400).json({ error: "Este usuário não possui e-mail cadastrado. Entre em contato com o administrador." });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hora de validade
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken: token,
+        resetTokenExpires: expires,
+      },
+    });
+
+    await sendResetEmail(user.email, user.name, token);
+
+    res.json({ message: "E-mail de recuperação enviado com sucesso!" });
+  } catch (error: any) {
+    console.error("Erro no esqueci a senha:", error);
+    res.status(500).json({ error: error.message ?? "Erro interno no servidor" });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({ error: "Token e senha são obrigatórios" });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: "A senha deve ter no mínimo 6 caracteres" });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExpires: { gte: new Date() },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Token inválido ou expirado" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        resetToken: null,
+        resetTokenExpires: null,
+      },
+    });
+
+    res.json({ message: "Senha redefinida com sucesso! Você já pode entrar." });
+  } catch (error: any) {
+    console.error("Erro na redefinição de senha:", error);
+    res.status(500).json({ error: error.message ?? "Erro interno no servidor" });
   }
 });
 

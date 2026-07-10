@@ -13,7 +13,7 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   login: (cpf: string, password: string) => Promise<void>;
-  register: (cpf: string, name: string, password: string, planType?: string) => Promise<void>;
+  register: (cpf: string, name: string, password: string, email: string, planType?: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -46,10 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(
-    async (cpf: string, name: string, password: string, planType?: string) => {
+    async (cpf: string, name: string, password: string, email: string, planType?: string) => {
       const data = await api.post<{ token: string; user: User }>(
         "/auth/register",
-        { cpf, name, password, planType }
+        { cpf, name, password, email, planType }
       );
       setAuthToken(data.token);
       setUser(data.user);

@@ -8,11 +8,14 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  cpf          String     @unique
-  passwordHash String
-  name         String
-  createdAt    DateTime   @default(now())
+  id                 String     @id @default(cuid())
+  cpf                String     @unique
+  passwordHash       String
+  name               String
+  email              String?
+  resetToken         String?
+  resetTokenExpires  DateTime?
+  createdAt          DateTime   @default(now())
   purchases    Purchase[]
   markets      Market[]   @relation("MarketCreatedBy")
   avatarUrl          String? // Foto do perfil em Base64 ou URL

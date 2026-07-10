@@ -57,6 +57,14 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <div className="flex justify-end">
+            <Link 
+              to="/esqueci-senha"
+              className="text-[11px] font-semibold text-graphite-400 hover:text-graphite-600 underline underline-offset-2 cursor-pointer transition-all"
+            >
+              Esqueceu a senha?
+            </Link>
+          </div>
           {error && <p className="text-xs font-semibold text-clay-600">{error}</p>}
           <Button type="submit" className="w-full mt-2" disabled={loading}>
             {loading ? "Entrando..." : "Entrar"}

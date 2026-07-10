@@ -11,6 +11,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [cpf, setCpf] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,10 @@ export default function Register() {
       setError("CPF inválido");
       return;
     }
+    if (!email.trim() || !email.includes("@")) {
+      setError("Insira um e-mail válido");
+      return;
+    }
     if (password.length < 6) {
       setError("A senha deve ter ao menos 6 caracteres");
       return;
@@ -31,7 +36,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register(cpf, name, password, planType);
+      await register(cpf, name, password, email, planType);
       
       if (planType !== "free_trial") {
         // Redireciona imediatamente para o fluxo de checkout
@@ -77,6 +82,14 @@ export default function Register() {
             value={formatCpf(cpf)}
             onChange={(e) => setCpf(e.target.value)}
             maxLength={14}
+            required
+          />
+          <TextInput
+            label="E-mail"
+            type="email"
+            placeholder="seu-email@dominio.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
           <TextInput
