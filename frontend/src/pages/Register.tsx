@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, ApiError } from "../lib/auth-context";
 import { formatCpf, isValidCpf } from "../lib/cpf";
@@ -16,6 +16,11 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [planType, setPlanType] = useState<"free_trial" | "monthly" | "yearly">("free_trial");
+
+  useEffect(() => {
+    // Dispara aquecimento silencioso do servidor Render
+    api.get("/health").catch(() => {});
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

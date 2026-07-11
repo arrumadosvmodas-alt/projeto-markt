@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, ApiError } from "../lib/auth-context";
 import { formatCpf } from "../lib/cpf";
 import { Button, TextInput, Logo, Card } from "../components/ui";
+import { api } from "../lib/api";
 
 export default function Login() {
   const { login } = useAuth();
@@ -11,6 +12,11 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Dispara aquecimento silencioso do servidor Render
+    api.get("/health").catch(() => {});
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
