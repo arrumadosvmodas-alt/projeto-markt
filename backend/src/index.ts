@@ -13,6 +13,7 @@ import walletRoutes from "./routes/wallet";
 import adminRoutes from "./routes/admin";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
+import { migrateFromRender } from "./migrate";
 
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET não definido. Copie .env.example para .env");
@@ -89,7 +90,17 @@ async function ensureAdminUser() {
   }
 }
 
-ensureAdminUser();
+// Migração única Render → Railway (ativa quando RENDER_DATABASE_URL estiver definida)
+if (process.env.RENDER_DATABASE_URL && process.env.DATABASE_URL) {
+  migrateFromRender(process.env.RENDER_DATABASE_URL, process.env.DATABASE_URL)
+    .then(() => ensureAdminUser())
+    .catch((err) => {
+      console.error("[STARTUP] Falha na migração:", err);
+      ensureAdminUser();
+    });
+} else {
+  ensureAdminUser();
+}
 
 const port = Number(process.env.PORT ?? 4000);
 app.listen(port, () => {
