@@ -1,5 +1,5 @@
 const isCapacitor = typeof (window as any).Capacitor !== "undefined";
-const API_BASE = isCapacitor ? "https://markt-backend.onrender.com" : "/api";
+const API_BASE = isCapacitor ? "https://projeto-markt-production.up.railway.app" : "/api";
 
 export class ApiError extends Error {
   status: number;

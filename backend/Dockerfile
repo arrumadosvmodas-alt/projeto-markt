@@ -1,35 +1,28 @@
-# ── Estágio 1: Build ──────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-COPY prisma ./prisma/
+# Instala dependências de sistema necessárias para o Prisma
+RUN apk add --no-cache openssl
 
+# Copia manifests de dependências
+COPY package.json package-lock.json ./
+
+# Instala todas as dependências
 RUN npm ci
 
-RUN npx prisma generate
-
-COPY . .
-RUN npm run build
-
-# ── Estágio 2: Runtime mínimo ──────────────────────────────────────────────────
-FROM node:20-alpine AS runner
-
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-COPY package.json package-lock.json ./
+# Copia o schema do Prisma e gera o client
 COPY prisma ./prisma/
-
-RUN npm ci --omit=dev
-
 RUN npx prisma generate
 
-COPY --from=builder /app/dist ./dist
+# Copia o código-fonte TypeScript
+COPY src ./src
+COPY tsconfig.json ./
+
+# Compila o TypeScript
+RUN npx tsc -p tsconfig.json
 
 EXPOSE 4000
 
-# db push é mais seguro que migrate deploy quando não há pasta migrations
-CMD ["sh", "-c", "npx prisma db push && node dist/index.js"]
+# Sincroniza o banco e inicia o servidor
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/index.js"]
