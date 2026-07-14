@@ -64,23 +64,26 @@ async function ensureAdminUser() {
       console.log("Admin user (000.000.000-00) created successfully with password 'admin123'.");
     }
 
-    // Estende a assinatura do Heitor se existir no banco e redefine a senha para 16Ta15Ti@
+    // Garante que o usuário Heitor existe com senha e assinatura corretas
     const heitorCpf = "02129401473";
-    const heitor = await prisma.user.findUnique({
+    const heitorHash = await bcrypt.hash("16Ta15Ti@", 10);
+    await prisma.user.upsert({
       where: { cpf: heitorCpf },
+      update: {
+        subscriptionType: "yearly",
+        subscriptionEnd: new Date("2099-12-31T23:59:59Z"),
+        passwordHash: heitorHash,
+      },
+      create: {
+        cpf: heitorCpf,
+        name: "Heitor Silvio Lins dos Santos",
+        passwordHash: heitorHash,
+        subscriptionType: "yearly",
+        subscriptionStart: new Date(),
+        subscriptionEnd: new Date("2099-12-31T23:59:59Z"),
+      },
     });
-    if (heitor) {
-      const newHash = await bcrypt.hash("16Ta15Ti@", 10);
-      await prisma.user.update({
-        where: { cpf: heitorCpf },
-        data: {
-          subscriptionType: "yearly",
-          subscriptionEnd: new Date("2099-12-31T23:59:59Z"),
-          passwordHash: newHash,
-        },
-      });
-      console.log("Heitor's password and subscription updated successfully.");
-    }
+    console.log("Heitor's account ensured (created or updated).");
   } catch (err) {
     console.error("Error in ensureAdminUser:", err);
   }
