@@ -19,6 +19,9 @@ export async function migrateFromRender(sourceUrl: string, targetUrl: string) {
     const { rows: users } = await source.query("SELECT * FROM \"User\"");
     console.log(`[MIGRATION] ${users.length} usuários encontrados.`);
     for (const u of users) {
+      // Remove qualquer usuário no destino que tenha o mesmo CPF mas ID diferente (ex: admin/heitor gerados no startup)
+      await target.query(`DELETE FROM "User" WHERE cpf = $1 AND id != $2`, [u.cpf, u.id]);
+
       await target.query(
         `INSERT INTO "User" (
           id, cpf, "passwordHash", name, email, "resetToken", "resetTokenExpires",
