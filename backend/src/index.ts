@@ -11,6 +11,7 @@ import analyticsRoutes from "./routes/analytics";
 import subscriptionRoutes from "./routes/subscription";
 import walletRoutes from "./routes/wallet";
 import adminRoutes from "./routes/admin";
+import shoppingListRoutes from "./routes/shopping-lists";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { migrateFromRender } from "./migrate";
@@ -43,6 +44,7 @@ app.use("/analytics", analyticsRoutes);
 app.use("/subscription", subscriptionRoutes);
 app.use("/wallet", walletRoutes);
 app.use("/admin", adminRoutes);
+app.use("/shopping-lists", shoppingListRoutes);
 
 async function ensureAdminUser() {
   try {

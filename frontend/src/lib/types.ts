@@ -58,6 +58,13 @@ export interface Purchase {
   items: PurchaseItem[];
   paymentMethod: string | null;
   paymentDetails: string | null;
+  shoppingListReport?: {
+    name: string;
+    items: {
+      name: string;
+      status: "bought" | "not_found";
+    }[];
+  } | null;
 }
 
 export interface PurchaseSummary {

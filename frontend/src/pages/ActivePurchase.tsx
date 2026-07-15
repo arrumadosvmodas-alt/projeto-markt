@@ -37,6 +37,48 @@ export default function ActivePurchase({
   const [error, setError] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
 
+  const [listName, setListName] = useState<string | null>(null);
+  const [listItems, setListItems] = useState<{ name: string; status: 'pending' | 'bought' | 'not_found' }[]>([]);
+  const [isListExpanded, setIsListExpanded] = useState(false);
+  const [initialSearchQuery, setInitialSearchQuery] = useState("");
+  const [buyingItemIndex, setBuyingItemIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const listRaw = localStorage.getItem(`markt_active_list_${purchase.id}`);
+    if (listRaw) {
+      try {
+        const parsed = JSON.parse(listRaw);
+        setListName(parsed.name);
+        const savedProgress = localStorage.getItem(`markt_active_list_progress_${purchase.id}`);
+        if (savedProgress) {
+          setListItems(JSON.parse(savedProgress));
+        } else {
+          setListItems(parsed.items.map((name: string) => ({ name, status: 'pending' })));
+        }
+      } catch (e) {
+        console.error("Erro ao carregar lista ativa:", e);
+      }
+    }
+  }, [purchase.id]);
+
+  useEffect(() => {
+    if (listItems.length > 0) {
+      localStorage.setItem(`markt_active_list_progress_${purchase.id}`, JSON.stringify(listItems));
+    }
+  }, [listItems, purchase.id]);
+
+  const handleBuyItemFromList = (name: string, index: number) => {
+    setBuyingItemIndex(index);
+    setInitialSearchQuery(name);
+    setStep({ kind: "searching-name" });
+  };
+
+  const handleToggleNotFound = (index: number) => {
+    const updated = [...listItems];
+    updated[index].status = updated[index].status === 'not_found' ? 'pending' : 'not_found';
+    setListItems(updated);
+  };
+
   async function handleBarcode(barcode: string) {
     setStep({ kind: "looking-up", barcode });
     setError(null);
@@ -73,6 +115,26 @@ export default function ActivePurchase({
       const refreshed = await api.get<{ purchase: Purchase }>(
         `/purchases/${purchase.id}`
       );
+
+      // Se estavamos comprando um item da lista, marca como comprado
+      if (buyingItemIndex !== null) {
+        const updated = [...listItems];
+        updated[buyingItemIndex].status = 'bought';
+        setListItems(updated);
+        setBuyingItemIndex(null);
+      } else {
+        // Tenta fazer matching automático por nome caso o usuário adicione sem clicar no botão
+        const matchIdx = listItems.findIndex(i => 
+          i.status === 'pending' && 
+          product.name.toLowerCase().includes(i.name.toLowerCase())
+        );
+        if (matchIdx !== -1) {
+          const updated = [...listItems];
+          updated[matchIdx].status = 'bought';
+          setListItems(updated);
+        }
+      }
+
       onChange(refreshed.purchase);
       setStep({ kind: "idle" });
     } catch {
@@ -97,10 +159,28 @@ export default function ActivePurchase({
   async function completePurchase(paymentMethod: string, paymentDetails?: string) {
     setCompleting(true);
     try {
+      let shoppingListReport;
+      const activeListRaw = localStorage.getItem(`markt_active_list_${purchase.id}`);
+      if (activeListRaw) {
+        const parsedList = JSON.parse(activeListRaw);
+        shoppingListReport = {
+          shoppingListId: parsedList.id,
+          name: parsedList.name,
+          items: listItems.map(item => ({
+            name: item.name,
+            status: item.status === 'bought' ? 'bought' : 'not_found'
+          }))
+        };
+      }
+
       await api.post(`/purchases/${purchase.id}/complete`, {
         paymentMethod,
         paymentDetails,
+        shoppingListReport
       });
+
+      localStorage.removeItem(`markt_active_list_${purchase.id}`);
+      localStorage.removeItem(`markt_active_list_progress_${purchase.id}`);
       onCompleted(purchase.id);
     } catch {
       setError("Não foi possível finalizar a compra.");
@@ -171,6 +251,76 @@ export default function ActivePurchase({
       <Card className="p-4 bg-white border border-cream-200 mb-4">
         <BudgetBar total={purchase.totalAmount} budgetLimit={purchase.budgetLimit} />
       </Card>
+
+      {listName && (
+        <Card className="p-4 bg-white border border-cream-200 mb-4 animate-fade-in shadow-sm">
+          <div className="flex justify-between items-center cursor-pointer" onClick={() => setIsListExpanded(!isListExpanded)}>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">📋</span>
+              <span className="font-bold text-graphite-800 text-sm">{listName}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-forest-50 px-2 py-0.5 rounded-full font-bold text-forest-700">
+                {listItems.filter(i => i.status === 'bought').length}/{listItems.length}
+              </span>
+              <span className="text-xs text-graphite-400 font-semibold">{isListExpanded ? "Ocultar" : "Mostrar"}</span>
+            </div>
+          </div>
+
+          {isListExpanded && (
+            <div className="mt-3 border-t border-cream-100 pt-3 space-y-2.5">
+              {/* Contadores */}
+              <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-bold pb-2 border-b border-cream-100/50">
+                <div className="bg-forest-50 text-forest-700 p-1.5 rounded-xl">
+                  <div>Comprados</div>
+                  <div className="text-sm font-black">{listItems.filter(i => i.status === 'bought').length}</div>
+                </div>
+                <div className="bg-clay-50 text-clay-700 p-1.5 rounded-xl">
+                  <div>Não Possui</div>
+                  <div className="text-sm font-black">{listItems.filter(i => i.status === 'not_found').length}</div>
+                </div>
+                <div className="bg-cream-100/60 text-graphite-700 p-1.5 rounded-xl">
+                  <div>Restante</div>
+                  <div className="text-sm font-black">{listItems.filter(i => i.status === 'pending').length}</div>
+                </div>
+              </div>
+
+              {/* Lista de Itens */}
+              <div className="space-y-1 max-h-60 overflow-y-auto">
+                {listItems.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center p-2 hover:bg-cream-50 rounded-xl transition-colors">
+                    <span className={`text-xs font-semibold ${item.status === 'bought' ? 'line-through text-graphite-400' : item.status === 'not_found' ? 'text-clay-500' : 'text-graphite-800'}`}>
+                      {item.name}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleBuyItemFromList(item.name, idx)}
+                        className={`px-2.5 py-1 rounded-xl text-[10px] font-bold border transition-all duration-200 cursor-pointer ${
+                          item.status === 'bought'
+                            ? 'bg-forest-600 border-forest-600 text-white shadow-sm'
+                            : 'bg-white border-cream-200 text-forest-600 hover:bg-forest-50'
+                        }`}
+                      >
+                        ✔ Comprado
+                      </button>
+                      <button
+                        onClick={() => handleToggleNotFound(idx)}
+                        className={`px-2.5 py-1 rounded-xl text-[10px] font-bold border transition-all duration-200 cursor-pointer ${
+                          item.status === 'not_found'
+                            ? 'bg-clay-600 border-clay-600 text-white shadow-sm'
+                            : 'bg-white border-cream-200 text-clay-600 hover:bg-clay-50'
+                        }`}
+                      >
+                        ❌ Não possui
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
 
       {lastComparison && (
         <Card className="p-4 border border-cream-200 bg-white border-l-4 border-l-forest-500 mb-4 animate-fade-in">
@@ -272,12 +422,14 @@ export default function ActivePurchase({
 
       {step.kind === "searching-name" && (
         <SearchingNameForm
+          initialQuery={initialSearchQuery}
           onSelectProduct={(product) => setStep({ kind: "price-quantity", product })}
-          onCancel={() => setStep({ kind: "adding-choice" })}
+          onCancel={() => {
+            setBuyingItemIndex(null);
+            setStep({ kind: "adding-choice" });
+          }}
         />
-      )}
-
-      {step.kind === "manual-product" && (
+      )}{step.kind === "manual-product" && (
         <ManualProductForm
           barcode={step.barcode}
           onCreated={(product) => setStep({ kind: "price-quantity", product })}
@@ -577,11 +729,13 @@ function EditIcon() {
 function SearchingNameForm({
   onSelectProduct,
   onCancel,
+  initialQuery = "",
 }: {
   onSelectProduct: (product: Product) => void;
   onCancel: () => void;
+  initialQuery?: string;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);

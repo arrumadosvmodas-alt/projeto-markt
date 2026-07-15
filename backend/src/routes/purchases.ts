@@ -11,6 +11,7 @@ router.use(requireActiveSubscription);
 const createSchema = z.object({
   marketId: z.string(),
   budgetLimit: z.number().positive().optional(),
+  shoppingListId: z.string().optional(),
 });
 
 router.post("/", async (req: AuthedRequest, res) => {
@@ -29,6 +30,7 @@ router.post("/", async (req: AuthedRequest, res) => {
       userId: req.userId!,
       marketId: market.id,
       budgetLimit: parsed.data.budgetLimit,
+      shoppingListId: parsed.data.shoppingListId || null,
     },
   });
 
@@ -63,6 +65,7 @@ router.get("/:id", async (req: AuthedRequest, res) => {
     include: {
       market: true,
       items: { include: { product: true }, orderBy: { createdAt: "asc" } },
+      shoppingListReport: { include: { items: true } },
     },
   });
 
@@ -228,6 +231,14 @@ router.put("/:id/items/:itemId", async (req: AuthedRequest, res) => {
 const completeSchema = z.object({
   paymentMethod: z.enum(["a_vista", "credito", "alimentacao", "misto"]),
   paymentDetails: z.string().optional(),
+  shoppingListReport: z.object({
+    shoppingListId: z.string(),
+    name: z.string(),
+    items: z.array(z.object({
+      name: z.string(),
+      status: z.enum(["bought", "not_found"]),
+    }))
+  }).optional()
 });
 
 router.post("/:id/complete", async (req: AuthedRequest, res) => {
@@ -242,6 +253,24 @@ router.post("/:id/complete", async (req: AuthedRequest, res) => {
   if (!purchase) return res.status(404).json({ error: "Compra não encontrada" });
   if (purchase.status === "completed") {
     return res.status(409).json({ error: "Compra já finalizada" });
+  }
+
+  // Se houver um relatório de lista de compras, salva-o
+  if (parsed.data.shoppingListReport) {
+    const report = parsed.data.shoppingListReport;
+    await prisma.purchaseShoppingListReport.create({
+      data: {
+        purchaseId: purchase.id,
+        shoppingListId: report.shoppingListId,
+        name: report.name,
+        items: {
+          create: report.items.map(item => ({
+            name: item.name,
+            status: item.status
+          }))
+        }
+      }
+    });
   }
 
   const updated = await prisma.purchase.update({

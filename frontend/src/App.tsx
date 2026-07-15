@@ -15,6 +15,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import ShoppingLists from "./pages/ShoppingLists";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
 import "./styles/design-system.css";
@@ -37,6 +38,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <Home />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/listas"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ShoppingLists />
               </Layout>
             </ProtectedRoute>
           }

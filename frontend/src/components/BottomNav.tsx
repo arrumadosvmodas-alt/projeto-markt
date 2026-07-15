@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 
 const items = [
   { to: "/", label: "Comprar", icon: CartIcon },
+  { to: "/listas", label: "Listas", icon: ListIcon },
   { to: "/historico", label: "Histórico", icon: HistoryIcon },
   { to: "/analises", label: "Análises", icon: ChartIcon },
   { to: "/carteira", label: "Carteira", icon: WalletIcon },
@@ -79,6 +80,19 @@ function WalletIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <rect x="2" y="4" width="20" height="16" rx="2" />
       <line x1="12" y1="12" x2="20" y2="12" />
+    </svg>
+  );
+}
+
+function ListIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" />
+      <line x1="3" y1="12" x2="3.01" y2="12" />
+      <line x1="3" y1="18" x2="3.01" y2="18" />
     </svg>
   );
 }

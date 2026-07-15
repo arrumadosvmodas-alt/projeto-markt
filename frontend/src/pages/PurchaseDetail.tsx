@@ -119,6 +119,42 @@ export default function PurchaseDetail() {
         )}
       </Card>
 
+      {purchase.shoppingListReport && (
+        <Card className="p-4 border border-cream-200 bg-white rounded-2xl mb-6">
+          <p className="text-[10px] font-bold text-graphite-400 uppercase tracking-wider mb-2">
+            Relatório de Lista de Compras ({purchase.shoppingListReport.name})
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <span className="text-[11px] font-bold text-forest-700 block mb-1">Comprados</span>
+              <div className="space-y-1">
+                {purchase.shoppingListReport.items.filter((i: any) => i.status === 'bought').map((item: any, idx: number) => (
+                  <div key={idx} className="text-xs text-graphite-600 bg-forest-50/50 px-2.5 py-1 rounded-lg">
+                    {item.name}
+                  </div>
+                ))}
+                {purchase.shoppingListReport.items.filter((i: any) => i.status === 'bought').length === 0 && (
+                  <div className="text-xs text-graphite-400 italic">Nenhum item comprado</div>
+                )}
+              </div>
+            </div>
+            <div>
+              <span className="text-[11px] font-bold text-clay-700 block mb-1">Não Localizados</span>
+              <div className="space-y-1">
+                {purchase.shoppingListReport.items.filter((i: any) => i.status === 'not_found').map((item: any, idx: number) => (
+                  <div key={idx} className="text-xs text-graphite-600 bg-clay-50/50 px-2.5 py-1 rounded-lg">
+                    {item.name}
+                  </div>
+                ))}
+                {purchase.shoppingListReport.items.filter((i: any) => i.status === 'not_found').length === 0 && (
+                  <div className="text-xs text-graphite-400 italic font-medium">Nenhum item em falta</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="space-y-2.5">
         <p className="text-xs font-bold text-graphite-700 uppercase tracking-wider">Itens desta compra</p>
         {purchase.items.map((item) => (

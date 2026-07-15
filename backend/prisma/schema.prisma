@@ -27,6 +27,7 @@ model User {
   walletCycleDay     Int           @default(5)
   walletLastPrompted DateTime?
   walletLimits       WalletLimit[]
+  shoppingLists      ShoppingList[]
 }
 
 model Market {
@@ -59,6 +60,9 @@ model Purchase {
   items        PurchaseItem[]
   paymentMethod String? // "a_vista" | "credito" | "alimentacao" | "misto"
   paymentDetails String? // JSON ou texto detalhando as formas de pagamento
+  shoppingListId String?
+  shoppingList   ShoppingList?  @relation(fields: [shoppingListId], references: [id])
+  shoppingListReport PurchaseShoppingListReport?
 
   @@index([userId, status])
   @@index([userId, completedAt])
@@ -107,4 +111,40 @@ model WalletLimit {
 
   @@index([userId])
   @@index([userId, cycleStartDate])
+}
+
+model ShoppingList {
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id])
+  name      String
+  isDefault Boolean            @default(false)
+  createdAt DateTime           @default(now())
+  items     ShoppingListItem[]
+  purchases Purchase[]
+}
+
+model ShoppingListItem {
+  id             String       @id @default(cuid())
+  shoppingListId String
+  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  name           String
+  createdAt      DateTime     @default(now())
+}
+
+model PurchaseShoppingListReport {
+  id             String                         @id @default(cuid())
+  purchaseId     String                         @unique
+  purchase       Purchase                       @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  shoppingListId String
+  name           String
+  items          PurchaseShoppingReportItem[]
+}
+
+model PurchaseShoppingReportItem {
+  id                           String                     @id @default(cuid())
+  purchaseShoppingListReportId String
+  report                       PurchaseShoppingListReport @relation(fields: [purchaseShoppingListReportId], references: [id], onDelete: Cascade)
+  name                         String
+  status                       String                     // "bought" | "not_found"
 }

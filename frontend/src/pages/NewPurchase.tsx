@@ -1,8 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../lib/api";
 import type { Market, Purchase } from "../lib/types";
 import { MarketPicker } from "../components/MarketPicker";
 import { Button, PageHeader, TextInput, Card } from "../components/ui";
+
+interface ShoppingListItem {
+  name: string;
+}
+
+interface CustomShoppingList {
+  id: string;
+  name: string;
+  items: ShoppingListItem[];
+}
+
+interface DefaultCategory {
+  category: string;
+  items: string[];
+}
 
 export default function NewPurchase({
   onStarted,
@@ -10,10 +25,66 @@ export default function NewPurchase({
   onStarted: (purchase: Purchase) => void;
 }) {
   const [market, setMarket] = useState<Market | null>(null);
+  
+  // Wizard stages: "market" -> "list" -> "budget"
+  const [stage, setStage] = useState<"market" | "list" | "budget">("market");
+  
+  const [customLists, setCustomLists] = useState<CustomShoppingList[]>([]);
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [selectedListName, setSelectedListName] = useState<string>("Nenhuma");
+  const [predictedCost, setPredictedCost] = useState<number | null>(null);
+  
   const [hasBudget, setHasBudget] = useState<boolean | null>(null);
   const [budgetLimit, setBudgetLimit] = useState("");
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (market) {
+      fetchLists();
+    }
+  }, [market]);
+
+  const fetchLists = async () => {
+    try {
+      const data = await api.get<{ defaultList: DefaultCategory[]; customLists: CustomShoppingList[] }>("/shopping-lists");
+      setCustomLists(data.customLists);
+    } catch {
+      console.log("Erro ao carregar listas de compras");
+    }
+  };
+
+  const handleSelectList = async (listId: string | null, listName: string, itemsList: string[]) => {
+    setSelectedListId(listId);
+    setSelectedListName(listName);
+    
+    if (itemsList.length === 0) {
+      setPredictedCost(0);
+      setStage("budget");
+      return;
+    }
+
+    // Calcular custo previsto buscando o preço histórico de cada item
+    try {
+      let total = 0;
+      await Promise.all(
+        itemsList.map(async (name) => {
+          try {
+            const res = await api.get<{ lastPrice: number | null; minPrice: number | null }>(
+              `/shopping-lists/suggest-price?name=${encodeURIComponent(name)}`
+            );
+            const price = res.lastPrice || res.minPrice || 0;
+            total += price;
+          } catch {}
+        })
+      );
+      setPredictedCost(total);
+    } catch {
+      setPredictedCost(0);
+    }
+    
+    setStage("budget");
+  };
 
   async function startPurchase() {
     if (!market) return;
@@ -24,10 +95,23 @@ export default function NewPurchase({
       const data = await api.post<{ purchase: { id: string } }>("/purchases", {
         marketId: market.id,
         budgetLimit: limit,
+        shoppingListId: selectedListId || undefined,
       });
       const full = await api.get<{ purchase: Purchase }>(
         `/purchases/${data.purchase.id}`
       );
+      
+      // Armazena temporariamente os itens da lista selecionada para uso no ActivePurchase
+      if (selectedListId) {
+        localStorage.setItem(`markt_active_list_${full.purchase.id}`, JSON.stringify({
+          id: selectedListId,
+          name: selectedListName,
+          items: selectedListId === "default" 
+            ? ["Arroz", "Feijão", "Macarrão", "Café", "Açúcar", "Sal", "Leite", "Óleo", "Sabão", "Detergente"] // Simplificado padrão
+            : customLists.find(l => l.id === selectedListId)?.items.map(i => i.name) || []
+        }));
+      }
+
       onStarted(full.purchase);
     } catch {
       setError("Não foi possível iniciar a compra. Tente novamente.");
@@ -36,26 +120,92 @@ export default function NewPurchase({
     }
   }
 
-  if (!market) {
+  if (stage === "market" || !market) {
     return (
       <div className="mx-auto max-w-md px-4 py-8">
         <PageHeader
           title="Onde você vai comprar?"
           subtitle="Escolha o mercado para começar a registrar os itens"
         />
-        <MarketPicker onSelect={setMarket} />
+        <MarketPicker onSelect={(m) => {
+          setMarket(m);
+          setStage("list");
+        }} />
+      </div>
+    );
+  }
+
+  if (stage === "list") {
+    return (
+      <div className="mx-auto max-w-md px-4 py-8 space-y-4">
+        <PageHeader title="Selecionar Lista de Compras" subtitle={market.name} />
+        
+        <Card
+          onClick={() => handleSelectList(null, "Nenhuma", [])}
+          className="p-5 cursor-pointer border border-cream-200 hover:border-forest-400 text-left transition-all duration-200 active:scale-[0.99] flex items-start gap-4"
+        >
+          <span className="text-2xl">🚫</span>
+          <div>
+            <p className="font-bold text-graphite-900">Continuar sem lista</p>
+            <p className="text-xs text-graphite-500 mt-1 font-medium">Faça sua compra livremente registrando os itens na hora.</p>
+          </div>
+        </Card>
+
+        <Card
+          onClick={() => handleSelectList("default", "Lista Padrão", ["Arroz", "Feijão", "Macarrão", "Café", "Açúcar", "Sal", "Leite", "Óleo", "Sabão", "Detergente"])}
+          className="p-5 cursor-pointer border border-cream-200 hover:border-forest-400 text-left transition-all duration-200 active:scale-[0.99] flex items-start gap-4"
+        >
+          <span className="text-2xl">📋</span>
+          <div>
+            <p className="font-bold text-graphite-900">Usar a Lista Padrão</p>
+            <p className="text-xs text-graphite-500 mt-1 font-medium">Usa os itens básicos sugeridos de supermercado.</p>
+          </div>
+        </Card>
+
+        {customLists.map(list => (
+          <Card
+            key={list.id}
+            onClick={() => handleSelectList(list.id, list.name, list.items.map(i => i.name))}
+            className="p-5 cursor-pointer border border-cream-200 hover:border-forest-400 text-left transition-all duration-200 active:scale-[0.99] flex items-start gap-4"
+          >
+            <span className="text-2xl">🌟</span>
+            <div>
+              <p className="font-bold text-graphite-900">{list.name}</p>
+              <p className="text-xs text-graphite-500 mt-1 font-medium">{list.items.length} itens cadastrados.</p>
+            </div>
+          </Card>
+        ))}
+
+        <button
+          onClick={() => setStage("market")}
+          className="mt-6 block w-full text-center text-sm font-semibold text-graphite-500 hover:text-graphite-700 underline underline-offset-2 transition"
+        >
+          ← Escolher outro mercado
+        </button>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-md px-4 py-8">
-      <PageHeader title="Definir limite de gasto" subtitle={market.name} />
+      <PageHeader title="Definir limite de gasto" subtitle={`${market.name} (${selectedListName})`} />
+
+      {predictedCost !== null && predictedCost > 0 && (
+        <Card className="p-4 bg-forest-50 border border-forest-200 text-forest-800 text-xs font-semibold mb-4 flex justify-between items-center">
+          <span>Estimativa de Custo da Lista:</span>
+          <span className="text-base font-extrabold text-forest-700">R$ {predictedCost.toFixed(2)}</span>
+        </Card>
+      )}
 
       {hasBudget === null && (
         <div className="space-y-4">
           <Card
-            onClick={() => setHasBudget(true)}
+            onClick={() => {
+              setHasBudget(true);
+              if (predictedCost && predictedCost > 0) {
+                setBudgetLimit(predictedCost.toFixed(2));
+              }
+            }}
             className="p-5 cursor-pointer border border-cream-200 hover:border-forest-400 text-left transition-all duration-200 active:scale-[0.99] flex items-start gap-4"
           >
             <div className="bg-forest-50 p-2.5 rounded-xl text-forest-600">
@@ -132,15 +282,14 @@ export default function NewPurchase({
       {hasBudget === null && (
         <button
           onClick={() => {
-            setMarket(null);
+            setStage("list");
             setHasBudget(null);
           }}
           className="mt-6 block w-full text-center text-sm font-semibold text-graphite-500 hover:text-graphite-700 underline underline-offset-2 transition"
         >
-          ← Escolher outro mercado
+          ← Escolher outra lista
         </button>
       )}
     </div>
   );
 }
-
