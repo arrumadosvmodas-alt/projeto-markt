@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markt Familiar - App de Organização Familiar | Download</title>
+    <title>Markt - App de Controle de Orçamento | Download</title>
     <style>
         * {
             margin: 0;
@@ -12,51 +13,55 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
-            color: #1f2937;
-            background: linear-gradient(135deg, #f5f3ff 0%, #f0f4ff 100%);
-            overflow-x: hidden;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%);
         }
 
         /* Navigation */
         nav {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
+            padding: 1.2rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
         .nav-brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #15803d;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-brand-icon {
+            font-size: 2rem;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 2.5rem;
             list-style: none;
         }
 
         .nav-links a {
             text-decoration: none;
             color: #4b5563;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.95rem;
             transition: color 0.3s ease;
         }
 
         .nav-links a:hover {
-            color: #6366f1;
+            color: #15803d;
         }
 
         @media (max-width: 768px) {
@@ -64,131 +69,158 @@
                 flex-direction: column;
                 gap: 1rem;
             }
+
             .nav-links {
                 gap: 1rem;
-                font-size: 0.9rem;
             }
         }
 
         /* Hero Section */
         .hero {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 6rem 2rem 4rem;
+            padding: 5rem 2rem 3rem;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 3rem;
+            gap: 4rem;
             align-items: center;
             animation: fadeInUp 0.8s ease-out;
         }
 
         .hero-content h1 {
-            font-size: 3rem;
-            line-height: 1.2;
+            font-size: 3.5rem;
+            line-height: 1.1;
             margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #1f2937 0%, #6366f1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #1a1a1a;
+            font-weight: 800;
+        }
+
+        .hero-content .highlight {
+            color: #15803d;
+            font-weight: 900;
         }
 
         .hero-content p {
-            font-size: 1.2rem;
-            color: #6b7280;
+            font-size: 1.1rem;
+            color: #666;
             margin-bottom: 2rem;
             line-height: 1.8;
         }
 
         .button-group {
             display: flex;
-            gap: 1rem;
+            gap: 1.2rem;
             flex-wrap: wrap;
             margin-bottom: 2rem;
         }
 
-        .btn-primary, .btn-secondary {
-            padding: 1rem 2rem;
+        .btn-primary,
+        .btn-secondary {
+            padding: 1.1rem 2.2rem;
             border: none;
-            border-radius: 12px;
+            border-radius: 50px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
             text-align: center;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
             color: white;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 10px 30px rgba(21, 128, 61, 0.3);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(21, 128, 61, 0.4);
         }
 
         .btn-secondary {
             background: white;
-            color: #6366f1;
-            border: 2px solid #6366f1;
+            color: #15803d;
+            border: 2.5px solid #15803d;
         }
 
         .btn-secondary:hover {
-            background: #f0f4ff;
-            transform: translateY(-2px);
+            background: #f0fdf4;
+            transform: translateY(-3px);
         }
 
-        .phone-mockup {
+        .hero-phone {
             position: relative;
             animation: floatUp 3s ease-in-out infinite;
         }
 
-        .phone-frame {
-            width: 300px;
-            height: 600px;
+        .phone-mockup {
+            width: 320px;
+            height: 640px;
             background: white;
-            border-radius: 40px;
-            border: 10px solid #1f2937;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 45px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             position: relative;
             margin: 0 auto;
         }
 
-        .phone-screen {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            padding: 1.5rem;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            font-size: 2rem;
-            font-weight: bold;
-        }
-
-        .phone-frame::before {
+        .phone-mockup::before {
             content: '';
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 150px;
-            height: 25px;
-            background: #1f2937;
-            border-radius: 0 0 20px 20px;
+            width: 160px;
+            height: 28px;
+            background: #1a1a1a;
+            border-radius: 0 0 25px 25px;
             z-index: 10;
         }
 
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            padding-top: 3rem;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #15803d;
+        }
+
+        .phone-screen h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .phone-screen p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .phone-icon {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+        }
+
         @keyframes floatUp {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-25px);
+            }
         }
 
         @keyframes fadeInUp {
@@ -196,164 +228,168 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 968px) {
             .hero {
                 grid-template-columns: 1fr;
                 padding: 3rem 1rem;
             }
+
             .hero-content h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
-            .hero-content p {
-                font-size: 1rem;
+
+            .hero-phone {
+                order: -1;
             }
+
             .button-group {
                 flex-direction: column;
             }
-            .phone-mockup {
-                order: -1;
-            }
         }
 
-        /* Stats Section */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 3rem auto;
-            padding: 0 2rem;
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 1.5rem;
+        /* Screenshot Carousel */
+        .screenshots-section {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: #6b7280;
-            font-weight: 500;
-        }
-
-        /* Features Section */
-        .features {
-            max-width: 1200px;
-            margin: 4rem auto;
-            padding: 0 2rem;
+            padding: 5rem 2rem;
+            margin-top: 3rem;
         }
 
         .section-title {
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            background: linear-gradient(135deg, #1f2937 0%, #6366f1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+            font-weight: 800;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 4rem;
+        }
+
+        .carousel-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 2rem;
+        }
+
+        .carousel-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .carousel-container::-webkit-scrollbar-track {
+            background: #f0fdf4;
+            border-radius: 10px;
+        }
+
+        .carousel-container::-webkit-scrollbar-thumb {
+            background: #15803d;
+            border-radius: 10px;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-auto-flow: column;
+            gap: 2rem;
+            width: max-content;
+        }
+
+        .screenshot-card {
+            flex-shrink: 0;
+            width: 420px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid #f0fdf4;
+        }
+
+        .screenshot-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(21, 128, 61, 0.15);
+            border-color: #15803d;
+        }
+
+        .screenshot-card img {
+            width: 100%;
+            height: 600px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Features Grid */
+        .features-section {
+            max-width: 1400px;
+            margin: 5rem auto;
+            padding: 0 2rem;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
         }
 
         .feature-card {
             background: white;
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-        }
-
-        .feature-card:nth-child(1) {
-            border-left-color: #6366f1;
-        }
-
-        .feature-card:nth-child(2) {
-            border-left-color: #a855f7;
-        }
-
-        .feature-card:nth-child(3) {
-            border-left-color: #ec4899;
-        }
-
-        .feature-card:nth-child(4) {
-            border-left-color: #f59e0b;
-        }
-
-        .feature-card:nth-child(5) {
-            border-left-color: #10b981;
-        }
-
-        .feature-card:nth-child(6) {
-            border-left-color: #3b82f6;
+            border-left: 5px solid #15803d;
         }
 
         .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(21, 128, 61, 0.15);
         }
 
         .feature-icon {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 1rem;
         }
 
         .feature-card h3 {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             margin-bottom: 0.8rem;
-            color: #1f2937;
+            color: #1a1a1a;
+            font-weight: 700;
         }
 
         .feature-card p {
-            color: #6b7280;
-            line-height: 1.6;
+            color: #666;
+            line-height: 1.7;
         }
 
         /* Download Section */
         .download-section {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
             color: white;
-            margin: 4rem 0;
-            padding: 4rem 2rem;
+            margin: 5rem 0 0 0;
+            padding: 5rem 2rem;
             text-align: center;
         }
 
         .download-section h2 {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
         }
 
         .download-section p {
             font-size: 1.2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             opacity: 0.95;
         }
 
@@ -370,98 +406,71 @@
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            padding: 1rem 2rem;
+            padding: 1.1rem 2.2rem;
             background: white;
-            color: #6366f1;
+            color: #15803d;
             text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
             transition: all 0.3s ease;
             cursor: pointer;
             border: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
 
         .download-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            background: #f0fdf4;
         }
 
         .download-icon {
             font-size: 1.5rem;
         }
 
-        /* Benefits Section */
-        .benefits {
-            max-width: 1200px;
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
             margin: 4rem auto;
             padding: 0 2rem;
         }
 
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-        }
-
-        .benefit-item {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .benefit-check {
-            color: #10b981;
-            font-size: 1.5rem;
-            font-weight: bold;
-            flex-shrink: 0;
-            margin-top: 0.2rem;
-        }
-
-        .benefit-text h4 {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-            color: #1f2937;
-        }
-
-        .benefit-text p {
-            color: #6b7280;
-            font-size: 0.95rem;
-        }
-
-        .benefits-image {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            background: white;
             border-radius: 16px;
-            height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
-        @media (max-width: 768px) {
-            .benefits-grid {
-                grid-template-columns: 1fr;
-            }
-            .benefits-image {
-                order: -1;
-                height: 300px;
-            }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #15803d;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 600;
+            font-size: 1rem;
         }
 
         /* Footer */
         footer {
-            background: #1f2937;
+            background: #1a1a1a;
             color: white;
-            padding: 2rem;
+            padding: 3rem 2rem;
             text-align: center;
             margin-top: 4rem;
         }
 
         footer p {
-            margin: 0.5rem 0;
+            margin: 0.7rem 0;
             opacity: 0.8;
         }
 
@@ -471,6 +480,7 @@
             gap: 2rem;
             margin-top: 1.5rem;
             flex-wrap: wrap;
+            font-weight: 600;
         }
 
         .footer-links a {
@@ -483,37 +493,32 @@
             opacity: 0.7;
         }
 
-        /* Responsive Design */
-        @media (max-width: 480px) {
-            .hero-content h1 {
-                font-size: 1.5rem;
-            }
+        @media (max-width: 768px) {
             .section-title {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
+
             .download-section h2 {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
-            .button-group {
-                flex-direction: column;
-            }
-            .download-buttons {
-                flex-direction: column;
-            }
-            .download-btn {
-                width: 100%;
-                justify-content: center;
+
+            .screenshot-card {
+                width: 300px;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav>
-        <div class="nav-brand">🎯 Markt Familiar</div>
+        <div class="nav-brand">
+            <span class="nav-brand-icon">🛒</span>
+            Markt
+        </div>
         <ul class="nav-links">
             <li><a href="#features">Recursos</a></li>
-            <li><a href="#benefits">Benefícios</a></li>
+            <li><a href="#gallery">Galeria</a></li>
             <li><a href="#download">Download</a></li>
         </ul>
     </nav>
@@ -521,19 +526,25 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1>Organize Sua Família em Um Só Lugar</h1>
-            <p>Markt Familiar é o app completo para gerenciar tarefas, eventos, listas compartilhadas e comunicação da sua família. Tudo integrado e fácil de usar.</p>
+            <h1>Planeje suas compras, controle seus gastos e <span class="highlight">cuide do seu orçamento</span>.</h1>
+            <p>Markt é o app completo para organizar suas finanças, acompanhar gastos em tempo real e tomar decisões
+                melhores com dados claros.</p>
             <div class="button-group">
-                <a href="#download" class="btn-primary">Baixar Agora</a>
-                <a href="#features" class="btn-secondary">Conhecer Recursos</a>
+                <a href="#download" class="btn-primary">
+                    <span>📱</span> Baixar Agora
+                </a>
+                <a href="#features" class="btn-secondary">
+                    <span>✨</span> Ver Recursos
+                </a>
             </div>
-            <p style="font-size: 0.95rem; color: #9ca3af;">✨ 100% Funcional | 7 Páginas | 15+ Features</p>
+            <p style="font-size: 0.95rem; color: #999;">✅ 100% Funcional | Análise de Gastos | Controle Total</p>
         </div>
-        <div class="phone-mockup">
-            <div class="phone-frame">
+        <div class="hero-phone">
+            <div class="phone-mockup">
                 <div class="phone-screen">
-                    👨‍👩‍👧‍👦<br>
-                    <span style="font-size: 1rem; margin-top: 1rem;">Markt Familiar</span>
+                    <div class="phone-icon">🛒</div>
+                    <h2>Markt</h2>
+                    <p>Seu controle financeiro</p>
                 </div>
             </div>
         </div>
@@ -542,157 +553,115 @@
     <!-- Stats Section -->
     <section class="stats">
         <div class="stat-card">
-            <div class="stat-number">7</div>
-            <div class="stat-label">Páginas Principais</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">15+</div>
-            <div class="stat-label">Recursos Funcionais</div>
+            <div class="stat-number">8+</div>
+            <div class="stat-label">Funcionalidades</div>
         </div>
         <div class="stat-card">
             <div class="stat-number">100%</div>
-            <div class="stat-label">Funcional & Pronto</div>
+            <div class="stat-label">Funcional</div>
         </div>
         <div class="stat-card">
             <div class="stat-number">∞</div>
-            <div class="stat-label">Sem Limites de Uso</div>
+            <div class="stat-label">Transações</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Limite de Uso</div>
         </div>
     </section>
 
+    <!-- Screenshots Section -->
+    <section class="screenshots-section" id="gallery">
+        <h2 class="section-title">Conheça o App</h2>
+        <p class="section-subtitle">Veja como é fácil controlar suas finanças com Markt</p>
+        <div class="carousel-container">
+            <div class="screenshots-grid">
+                <div class="screenshot-card">
+                    <img src="/screenshot1.jpg" alt="Dashboard">
+                </div>
+                <div class="screenshot-card">
+                    <img src="/screenshot2.jpg" alt="Carteira">
+                </div>
+                <div class="screenshot-card">
+                    <img src="/screenshot3.jpg" alt="Análises">
+                </div>
+                <div class="screenshot-card">
+                    <img src="/screenshot4.jpg" alt="Histórico">
+                </div>
+                <div class="screenshot-card">
+                    <img src="/screenshot5.jpg" alt="Preferências">
+                </div>
+            </div>
+        </div>
+        <p style="text-align: center; color: #999; margin-top: 2rem; font-size: 0.95rem;">👉 Role para ver mais
+            screenshots</p>
+    </section>
+
     <!-- Features Section -->
-    <section class="features" id="features">
+    <section class="features-section" id="features">
         <h2 class="section-title">Recursos Principais</h2>
         <div class="features-grid">
             <div class="feature-card">
-                <div class="feature-icon">👥</div>
-                <h3>Círculos Familiares</h3>
-                <p>Crie grupos para sua família, organize por núcleos e convide membros facilmente com emojis personalizados.</p>
+                <div class="feature-icon">💳</div>
+                <h3>Carteira Doméstica</h3>
+                <p>Monitore seu orçamento mensal com limite definido e saldo restante atualizado em tempo real.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">📋</div>
-                <h3>Listas Compartilhadas</h3>
-                <p>Crie listas de compras, tarefas e tarefas colaborativas que toda a família pode ver e atualizar em tempo real.</p>
+                <div class="feature-icon">📊</div>
+                <h3>Análises Financeiras</h3>
+                <p>Visualize gráficos detalhados de gastos por categoria e entenda para onde vai seu dinheiro.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">📅</div>
-                <h3>Calendário Inteligente</h3>
-                <p>Visualize todos os eventos da família em um calendário interativo. Veja datas importantes e status dos participantes.</p>
+                <div class="feature-icon">🏪</div>
+                <h3>Histórico de Compras</h3>
+                <p>Cada compra fica registrada com produtos, valores, estabelecimento e data exata.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">✓</div>
-                <h3>Gerenciador de Tarefas</h3>
-                <p>Atribua tarefas, defina prioridades, acompanhe o progresso e celebre as conclusões com a família.</p>
+                <div class="feature-icon">📍</div>
+                <h3>Localização de Mercados</h3>
+                <p>Encontre mercados próximos usando o mapa integrado e comece a comprar.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">💬</div>
-                <h3>Chat Familiar</h3>
-                <p>Comunique-se facilmente com mensagens, emojis e reações. Mantenha todos conectados e alinhados.</p>
+                <div class="feature-icon">🎨</div>
+                <h3>Personalização</h3>
+                <p>Escolha entre diferentes cores, temas e organize o app do seu jeito.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🌙</div>
-                <h3>Modo Escuro</h3>
-                <p>Interface moderna com suporte completo a dark mode. Confortável para usar a qualquer hora do dia.</p>
+                <h3>Dark Mode</h3>
+                <p>Modo escuro automático para conforto visual em qualquer hora do dia.</p>
             </div>
         </div>
     </section>
 
     <!-- Download Section -->
     <section class="download-section" id="download">
-        <h2>Pronto Para Organizar Sua Família?</h2>
-        <p>Baixe o Markt Familiar agora e comece a organizar sua rotina familiar de forma simples e intuitiva.</p>
+        <h2>Comece a Controlar Seu Orçamento</h2>
+        <p>Baixe Markt agora e tenha acesso a todas as ferramentas de análise financeira</p>
         <div class="download-buttons">
-            <button class="download-btn" onclick="downloadAPK()">
+            <a href="/Markt.apk" download class="download-btn">
                 <span class="download-icon">📱</span>
-                <span>Baixar APK (Android)</span>
-            </button>
-            <button class="download-btn" onclick="downloadAAB()">
+                Baixar APK
+            </a>
+            <a href="/Markt.aab" download class="download-btn">
                 <span class="download-icon">🎯</span>
-                <span>Baixar AAB (Google Play)</span>
-            </button>
-            <button class="download-btn" onclick="showWebVersion()">
-                <span class="download-icon">🌐</span>
-                <span>Versão Web (Teste Aqui)</span>
-            </button>
-        </div>
-    </section>
-
-    <!-- Benefits Section -->
-    <section class="benefits" id="benefits">
-        <h2 class="section-title">Por Que Usar Markt Familiar?</h2>
-        <div class="benefits-grid">
-            <div>
-                <div class="benefit-item">
-                    <div class="benefit-check">✓</div>
-                    <div class="benefit-text">
-                        <h4>Organização Completa</h4>
-                        <p>Tudo que sua família precisa em um único app: tarefas, eventos, listas e comunicação.</p>
-                    </div>
-                </div>
-                <div class="benefit-item">
-                    <div class="benefit-check">✓</div>
-                    <div class="benefit-text">
-                        <h4>Fácil de Usar</h4>
-                        <p>Interface intuitiva e responsiva que funciona em qualquer dispositivo e qualquer hora.</p>
-                    </div>
-                </div>
-                <div class="benefit-item">
-                    <div class="benefit-check">✓</div>
-                    <div class="benefit-text">
-                        <h4>Tempo Real</h4>
-                        <p>Todas as mudanças são sincronizadas instantaneamente entre os membros da família.</p>
-                    </div>
-                </div>
-                <div class="benefit-item">
-                    <div class="benefit-check">✓</div>
-                    <div class="benefit-text">
-                        <h4>Design Moderno</h4>
-                        <p>Interface bonita com dark mode automático e animações suaves que deixa tudo visual e agradável.</p>
-                    </div>
-                </div>
-                <div class="benefit-item">
-                    <div class="benefit-check">✓</div>
-                    <div class="benefit-text">
-                        <h4>100% Funcional</h4>
-                        <p>App completo com todas as features implementadas e testadas. Pronto para usar imediatamente.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="benefits-image">
-                🏠<br>
-                <span style="font-size: 1.5rem; margin-top: 1rem;">Família Organizada</span>
-            </div>
+                Google Play
+            </a>
         </div>
     </section>
 
     <!-- Footer -->
     <footer>
-        <p><strong>Markt Familiar v1.0.0</strong></p>
-        <p>O app completo de organização familiar. Funcional, moderno e pronto para usar.</p>
+        <p><strong>Markt v1.0.0</strong></p>
+        <p>O app completo para controle de orçamento e análise de gastos.</p>
         <div class="footer-links">
             <a href="#">Privacidade</a>
-            <a href="#">Termos de Uso</a>
+            <a href="#">Termos</a>
             <a href="#">Contato</a>
             <a href="#">Documentação</a>
         </div>
-        <p style="margin-top: 2rem; opacity: 0.6; font-size: 0.9rem;">© 2026 Markt Familiar. Todos os direitos reservados.</p>
+        <p style="margin-top: 2rem; opacity: 0.5; font-size: 0.9rem;">© 2026 Markt. Todos os direitos reservados.</p>
     </footer>
-
-    <script>
-        function downloadAPK() {
-            alert('📱 Iniciando download do APK...\n\nArquivo: Markt.apk\nTamanho: ~6.2MB\n\nO arquivo será salvo em sua pasta de Downloads.');
-            // Aqui você poderia adicionar um link real de download
-            // window.location.href = 'path/to/Markt.apk';
-        }
-
-        function downloadAAB() {
-            alert('🎯 Iniciando download do AAB...\n\nArquivo: Markt.aab\nTamanho: ~1.2MB\n\nPerfect para Google Play Store.');
-            // Aqui você poderia adicionar um link real de download
-            // window.location.href = 'path/to/Markt.aab';
-        }
-
-        function showWebVersion() {
-            alert('🌐 Versão Web\n\nAcesse a versão web em:\nlocalhost:5173\n\nLogin:\nCPF: 12345678900\nSenha: 123456');
-        }
-    </script>
 </body>
+
 </html>
