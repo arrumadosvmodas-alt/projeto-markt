@@ -1,0 +1,21 @@
+{
+  "name": "markt-download",
+  "version": "1.0.0",
+  "description": "Página de download - Markt Familiar App",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p $PORT"
+  },
+  "keywords": [
+    "markt",
+    "familiar",
+    "app",
+    "download",
+    "landing-page"
+  ],
+  "author": "Markt Familiar",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
