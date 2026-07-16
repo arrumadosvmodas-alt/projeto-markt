@@ -4,7 +4,7 @@
   "description": "Página de download - Markt Familiar App",
   "main": "index.html",
   "scripts": {
-    "start": "npx http-server -p $PORT"
+    "start": "npx http-server download-page -p $PORT"
   },
   "keywords": [
     "markt",
