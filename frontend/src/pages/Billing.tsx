@@ -76,7 +76,7 @@ export default function Billing() {
             </div>
             <p className="text-xs text-graphite-500 font-semibold mt-1">Acesso por 1 ano completo com desconto.</p>
             <p className="text-2xl font-black text-graphite-900 mt-4 tabular-nums">
-              R$ 99,00<span className="text-xs font-semibold text-graphite-500"> / ano</span>
+              R$ 79,90<span className="text-xs font-semibold text-graphite-500"> / ano</span>
             </p>
           </div>
           <Button 

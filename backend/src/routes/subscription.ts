@@ -47,7 +47,7 @@ router.post("/create-preference", getAuthUser, async (req: any, res) => {
     return res.status(400).json({ error: "Plano inválido" });
   }
 
-  const price = planType === "monthly" ? 9.90 : 99.00;
+  const price = planType === "monthly" ? 9.90 : 79.90;
   const title = planType === "monthly" ? "Plano Markt Mensal" : "Plano Markt Anual";
 
   const mpToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;

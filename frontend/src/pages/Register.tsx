@@ -115,7 +115,7 @@ export default function Register() {
             >
               <option value="free_trial">Gratuito (7 dias grátis)</option>
               <option value="monthly">Mensal (R$ 9,90/mês)</option>
-              <option value="yearly">Anual (R$ 99,00/ano)</option>
+              <option value="yearly">Anual (R$ 79,90/ano)</option>
             </select>
           </div>
 
