@@ -19,7 +19,6 @@ const admin_1 = __importDefault(require("./routes/admin"));
 const shopping_lists_1 = __importDefault(require("./routes/shopping-lists"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const prisma_1 = require("./prisma");
-const migrate_1 = require("./migrate");
 if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET não definido. Copie .env.example para .env");
 }
@@ -90,18 +89,8 @@ async function ensureAdminUser() {
         console.error("Error in ensureAdminUser:", err);
     }
 }
-// Migração única Render → Railway (ativa quando RENDER_DATABASE_URL estiver definida)
-if (process.env.RENDER_DATABASE_URL && process.env.DATABASE_URL) {
-    (0, migrate_1.migrateFromRender)(process.env.RENDER_DATABASE_URL, process.env.DATABASE_URL)
-        .then(() => ensureAdminUser())
-        .catch((err) => {
-        console.error("[STARTUP] Falha na migração:", err);
-        ensureAdminUser();
-    });
-}
-else {
-    ensureAdminUser();
-}
+// Garante usuários padrão ao iniciar
+ensureAdminUser();
 const port = Number(process.env.PORT ?? 4000);
 app.listen(port, () => {
     console.log(`Backend rodando em http://localhost:${port}`);

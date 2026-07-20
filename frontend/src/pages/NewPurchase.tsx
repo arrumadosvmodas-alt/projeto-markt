@@ -191,9 +191,12 @@ export default function NewPurchase({
       <PageHeader title="Definir limite de gasto" subtitle={`${market.name} (${selectedListName})`} />
 
       {predictedCost !== null && predictedCost > 0 && (
-        <Card className="p-4 bg-forest-50 border border-forest-200 text-forest-800 text-xs font-semibold mb-4 flex justify-between items-center">
-          <span>Estimativa de Custo da Lista:</span>
-          <span className="text-base font-extrabold text-forest-700">R$ {predictedCost.toFixed(2)}</span>
+        <Card className="p-4 bg-amber-50 border border-amber-200 text-xs font-semibold mb-4 flex flex-col gap-1">
+          <div className="flex justify-between items-center">
+            <span className="text-graphite-700">💡 Estimativa da lista (referência):</span>
+            <span className="text-base font-extrabold text-graphite-900">R$ {predictedCost.toFixed(2).replace(".", ",")}</span>
+          </div>
+          <p className="text-[10px] font-medium text-graphite-500">Este valor é apenas uma estimativa baseada no seu histórico. Você pode comprar normalmente independente deste valor.</p>
         </Card>
       )}
 
