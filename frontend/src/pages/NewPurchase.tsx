@@ -32,7 +32,6 @@ export default function NewPurchase({
   const [customLists, setCustomLists] = useState<CustomShoppingList[]>([]);
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [selectedListName, setSelectedListName] = useState<string>("Nenhuma");
-  const [predictedCost, setPredictedCost] = useState<number | null>(null);
   
   const [hasBudget, setHasBudget] = useState<boolean | null>(null);
   const [budgetLimit, setBudgetLimit] = useState("");
@@ -40,9 +39,7 @@ export default function NewPurchase({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (market) {
-      fetchLists();
-    }
+    if (market) fetchLists();
   }, [market]);
 
   const fetchLists = async () => {
@@ -54,35 +51,9 @@ export default function NewPurchase({
     }
   };
 
-  const handleSelectList = async (listId: string | null, listName: string, itemsList: string[]) => {
+  const handleSelectList = (listId: string | null, listName: string, _itemsList: string[]) => {
     setSelectedListId(listId);
     setSelectedListName(listName);
-    
-    if (itemsList.length === 0) {
-      setPredictedCost(0);
-      setStage("budget");
-      return;
-    }
-
-    // Calcular custo previsto buscando o preço histórico de cada item
-    try {
-      let total = 0;
-      await Promise.all(
-        itemsList.map(async (name) => {
-          try {
-            const res = await api.get<{ lastPrice: number | null; minPrice: number | null }>(
-              `/shopping-lists/suggest-price?name=${encodeURIComponent(name)}`
-            );
-            const price = res.lastPrice || res.minPrice || 0;
-            total += price;
-          } catch {}
-        })
-      );
-      setPredictedCost(total);
-    } catch {
-      setPredictedCost(0);
-    }
-    
     setStage("budget");
   };
 
@@ -190,25 +161,10 @@ export default function NewPurchase({
     <div className="mx-auto max-w-md px-4 py-8">
       <PageHeader title="Definir limite de gasto" subtitle={`${market.name} (${selectedListName})`} />
 
-      {predictedCost !== null && predictedCost > 0 && (
-        <Card className="p-4 bg-amber-50 border border-amber-200 text-xs font-semibold mb-4 flex flex-col gap-1">
-          <div className="flex justify-between items-center">
-            <span className="text-graphite-700">💡 Estimativa da lista (referência):</span>
-            <span className="text-base font-extrabold text-graphite-900">R$ {predictedCost.toFixed(2).replace(".", ",")}</span>
-          </div>
-          <p className="text-[10px] font-medium text-graphite-500">Este valor é apenas uma estimativa baseada no seu histórico. Você pode comprar normalmente independente deste valor.</p>
-        </Card>
-      )}
-
       {hasBudget === null && (
         <div className="space-y-4">
           <Card
-            onClick={() => {
-              setHasBudget(true);
-              if (predictedCost && predictedCost > 0) {
-                setBudgetLimit(predictedCost.toFixed(2));
-              }
-            }}
+            onClick={() => setHasBudget(true)}
             className="p-5 cursor-pointer border border-cream-200 hover:border-forest-400 text-left transition-all duration-200 active:scale-[0.99] flex items-start gap-4"
           >
             <div className="bg-forest-50 p-2.5 rounded-xl text-forest-600">

@@ -73,6 +73,11 @@ export default function ActivePurchase({
     setStep({ kind: "searching-name" });
   };
 
+  // Remove o item comprado da lista assim que o produto for adicionado à compra
+  const markItemBought = (index: number) => {
+    setListItems(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleToggleNotFound = (index: number) => {
     const updated = [...listItems];
     updated[index].status = updated[index].status === 'not_found' ? 'pending' : 'not_found';
@@ -270,11 +275,7 @@ export default function ActivePurchase({
           {isListExpanded && (
             <div className="mt-3 border-t border-cream-100 pt-3 space-y-2.5">
               {/* Contadores */}
-              <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-bold pb-2 border-b border-cream-100/50">
-                <div className="bg-forest-50 text-forest-700 p-1.5 rounded-xl">
-                  <div>Comprados</div>
-                  <div className="text-sm font-black">{listItems.filter(i => i.status === 'bought').length}</div>
-                </div>
+              <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-bold pb-2 border-b border-cream-100/50">
                 <div className="bg-clay-50 text-clay-700 p-1.5 rounded-xl">
                   <div>Não Possui</div>
                   <div className="text-sm font-black">{listItems.filter(i => i.status === 'not_found').length}</div>
@@ -285,21 +286,20 @@ export default function ActivePurchase({
                 </div>
               </div>
 
-              {/* Lista de Itens */}
+              {/* Lista de Itens - bought items are removed; not_found stay visible */}
               <div className="space-y-1 max-h-60 overflow-y-auto">
                 {listItems.map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center p-2 hover:bg-cream-50 rounded-xl transition-colors">
-                    <span className={`text-xs font-semibold ${item.status === 'bought' ? 'line-through text-graphite-400' : item.status === 'not_found' ? 'text-clay-500' : 'text-graphite-800'}`}>
+                    <span className={`text-xs font-semibold ${
+                      item.status === 'not_found' ? 'text-clay-500 line-through' : 'text-graphite-800'
+                    }`}>
                       {item.name}
+                      {item.status === 'not_found' && <span className="ml-1 text-[9px] font-bold text-clay-400">(não possui)</span>}
                     </span>
                     <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => handleBuyItemFromList(item.name, idx)}
-                        className={`px-2.5 py-1 rounded-xl text-[10px] font-bold border transition-all duration-200 cursor-pointer ${
-                          item.status === 'bought'
-                            ? 'bg-forest-600 border-forest-600 text-white shadow-sm'
-                            : 'bg-white border-cream-200 text-forest-600 hover:bg-forest-50'
-                        }`}
+                        onClick={() => { markItemBought(idx); handleBuyItemFromList(item.name, idx); }}
+                        className="px-2.5 py-1 rounded-xl text-[10px] font-bold border transition-all duration-200 cursor-pointer bg-white border-cream-200 text-forest-600 hover:bg-forest-50"
                       >
                         ✔ Comprado
                       </button>
