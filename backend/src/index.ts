@@ -66,26 +66,33 @@ async function ensureAdminUser() {
       console.log("Admin user (000.000.000-00) created successfully with password 'admin123'.");
     }
 
-    // Garante que o usuário Heitor existe com senha e assinatura corretas
+    // Garante que o usuário Heitor existe com assinatura correta
     const heitorCpf = "02129401473";
-    const heitorHash = await bcrypt.hash("16Ta15Ti@", 10);
-    await prisma.user.upsert({
-      where: { cpf: heitorCpf },
-      update: {
-        subscriptionType: "yearly",
-        subscriptionEnd: new Date("2099-12-31T23:59:59Z"),
-        passwordHash: heitorHash,
-      },
-      create: {
-        cpf: heitorCpf,
-        name: "Heitor Silvio Lins dos Santos",
-        passwordHash: heitorHash,
-        subscriptionType: "yearly",
-        subscriptionStart: new Date(),
-        subscriptionEnd: new Date("2099-12-31T23:59:59Z"),
-      },
-    });
-    console.log("Heitor's account ensured (created or updated).");
+    const existingHeitor = await prisma.user.findUnique({ where: { cpf: heitorCpf } });
+    if (!existingHeitor) {
+      const heitorHash = await bcrypt.hash("16Ta15Ti@", 10);
+      await prisma.user.create({
+        data: {
+          cpf: heitorCpf,
+          name: "Heitor Silvio Lins dos Santos",
+          passwordHash: heitorHash,
+          subscriptionType: "yearly",
+          subscriptionStart: new Date(),
+          subscriptionEnd: new Date("2099-12-31T23:59:59Z"),
+        },
+      });
+      console.log("Heitor's account created.");
+    } else {
+      // Apenas renova a assinatura, sem alterar senha ou outros dados
+      await prisma.user.update({
+        where: { cpf: heitorCpf },
+        data: {
+          subscriptionType: "yearly",
+          subscriptionEnd: new Date("2099-12-31T23:59:59Z"),
+        },
+      });
+      console.log("Heitor's subscription renewed.");
+    }
   } catch (err) {
     console.error("Error in ensureAdminUser:", err);
   }

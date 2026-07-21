@@ -40,8 +40,6 @@ export default function ActivePurchase({
   const [listName, setListName] = useState<string | null>(null);
   const [listItems, setListItems] = useState<{ name: string; status: 'pending' | 'bought' | 'not_found' }[]>([]);
   const [isListExpanded, setIsListExpanded] = useState(false);
-  const [initialSearchQuery, setInitialSearchQuery] = useState("");
-  const [buyingItemIndex, setBuyingItemIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const listRaw = localStorage.getItem(`markt_active_list_${purchase.id}`);
@@ -67,21 +65,17 @@ export default function ActivePurchase({
     }
   }, [listItems, purchase.id]);
 
-  const handleBuyItemFromList = (name: string, index: number) => {
-    setBuyingItemIndex(index);
-    setInitialSearchQuery(name);
-    setStep({ kind: "searching-name" });
-  };
-
-  // Remove o item comprado da lista assim que o produto for adicionado à compra
+  // Remove o item da lista ao marcar como comprado
   const markItemBought = (index: number) => {
     setListItems(prev => prev.filter((_, i) => i !== index));
+    setStep({ kind: "idle" });
   };
 
   const handleToggleNotFound = (index: number) => {
     const updated = [...listItems];
     updated[index].status = updated[index].status === 'not_found' ? 'pending' : 'not_found';
     setListItems(updated);
+    setStep({ kind: "idle" });
   };
 
   async function handleBarcode(barcode: string) {
@@ -121,23 +115,13 @@ export default function ActivePurchase({
         `/purchases/${purchase.id}`
       );
 
-      // Se estavamos comprando um item da lista, marca como comprado
-      if (buyingItemIndex !== null) {
-        const updated = [...listItems];
-        updated[buyingItemIndex].status = 'bought';
-        setListItems(updated);
-        setBuyingItemIndex(null);
-      } else {
-        // Tenta fazer matching automático por nome caso o usuário adicione sem clicar no botão
-        const matchIdx = listItems.findIndex(i => 
-          i.status === 'pending' && 
-          product.name.toLowerCase().includes(i.name.toLowerCase())
-        );
-        if (matchIdx !== -1) {
-          const updated = [...listItems];
-          updated[matchIdx].status = 'bought';
-          setListItems(updated);
-        }
+      // Auto-match: se o produto adicionado coincide com item pendente da lista, remove-o
+      const matchIdx = listItems.findIndex(i => 
+        i.status === 'pending' && 
+        product.name.toLowerCase().includes(i.name.toLowerCase())
+      );
+      if (matchIdx !== -1) {
+        setListItems(prev => prev.filter((_, i) => i !== matchIdx));
       }
 
       onChange(refreshed.purchase);
@@ -298,7 +282,7 @@ export default function ActivePurchase({
                     </span>
                     <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => { markItemBought(idx); handleBuyItemFromList(item.name, idx); }}
+                        onClick={() => markItemBought(idx)}
                         className="px-2.5 py-1 rounded-xl text-[10px] font-bold border transition-all duration-200 cursor-pointer bg-white border-cream-200 text-forest-600 hover:bg-forest-50"
                       >
                         ✔ Comprado
@@ -422,10 +406,9 @@ export default function ActivePurchase({
 
       {step.kind === "searching-name" && (
         <SearchingNameForm
-          initialQuery={initialSearchQuery}
+          initialQuery=""
           onSelectProduct={(product) => setStep({ kind: "price-quantity", product })}
           onCancel={() => {
-            setBuyingItemIndex(null);
             setStep({ kind: "adding-choice" });
           }}
         />

@@ -33,13 +33,7 @@ export function Scanner({ onDetected, onClose, onManual }: ScannerProps) {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scanStatus, setScanStatus] = useState("Aponte para o código de barras");
   const [manualCode, setManualCode] = useState("");
-  const [torchEnabled, setTorchEnabled] = useState(() => {
-    if (typeof window !== "undefined") {
-      const pref = localStorage.getItem("markt_torch_preference");
-      return pref !== "false";
-    }
-    return true;
-  });
+  const [torchEnabled, setTorchEnabled] = useState(false);
 
   // ── Loop de decodificação via requestAnimationFrame + canvas crop ──────────
   const decodeFrame = useCallback(() => {
@@ -188,28 +182,13 @@ export function Scanner({ onDetected, onClose, onManual }: ScannerProps) {
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
         <div className="mb-3 flex items-center justify-between text-cream-50">
           <h2 className="font-semibold">Ler código de barras</h2>
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => {
-                const nextVal = !torchEnabled;
-                setTorchEnabled(nextVal);
-                localStorage.setItem("markt_torch_preference", String(nextVal));
-              }}
-              className={`rounded-full p-2 hover:bg-white/10 transition-colors ${
-                torchEnabled ? "text-amber-400" : "text-cream-50"
-              }`}
-              title="Alternar lanterna"
-            >
-              <FlashIcon />
-            </button>
-            <button
-              onClick={onClose}
-              className="rounded-full p-2 hover:bg-white/10 text-cream-50"
-              aria-label="Fechar"
-            >
-              <CloseIcon />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 hover:bg-white/10 text-cream-50"
+            aria-label="Fechar"
+          >
+            <CloseIcon />
+          </button>
         </div>
 
         <div className="relative flex-1 overflow-hidden rounded-2xl bg-black flex flex-col justify-between">
@@ -248,14 +227,46 @@ export function Scanner({ onDetected, onClose, onManual }: ScannerProps) {
             </div>
           )}
           {onManual && (
-            <div className="absolute bottom-4 left-0 right-0 px-4">
+            <div className="absolute bottom-4 left-0 right-0 px-4 flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const nextVal = !torchEnabled;
+                  setTorchEnabled(nextVal);
+                }}
+                className={`flex-shrink-0 rounded-full p-3.5 border-2 transition-all duration-200 shadow-lg ${
+                  torchEnabled
+                    ? "bg-amber-400 border-amber-400 text-graphite-900"
+                    : "bg-white/15 border-white/30 text-cream-50 hover:bg-white/25"
+                }`}
+                title={torchEnabled ? "Desligar lanterna" : "Ligar lanterna"}
+              >
+                <FlashIcon />
+              </button>
               <Button
                 onClick={onManual}
                 variant="secondary"
-                className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-sm transition-all duration-200"
+                className="flex-1 bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-sm transition-all duration-200"
               >
                 Cadastrar manualmente (Digitar item)
               </Button>
+            </div>
+          )}
+          {!onManual && (
+            <div className="absolute bottom-4 right-4">
+              <button
+                onClick={() => {
+                  const nextVal = !torchEnabled;
+                  setTorchEnabled(nextVal);
+                }}
+                className={`rounded-full p-3.5 border-2 transition-all duration-200 shadow-lg ${
+                  torchEnabled
+                    ? "bg-amber-400 border-amber-400 text-graphite-900"
+                    : "bg-white/15 border-white/30 text-cream-50 hover:bg-white/25"
+                }`}
+                title={torchEnabled ? "Desligar lanterna" : "Ligar lanterna"}
+              >
+                <FlashIcon />
+              </button>
             </div>
           )}
         </div>

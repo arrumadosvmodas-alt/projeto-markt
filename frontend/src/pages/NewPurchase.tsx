@@ -68,24 +68,34 @@ export default function NewPurchase({
         budgetLimit: limit,
         shoppingListId: selectedListId || undefined,
       });
-      const full = await api.get<{ purchase: Purchase }>(
-        `/purchases/${data.purchase.id}`
-      );
+
+      // Retry o GET com até 2 tentativas para evitar falha por instabilidade transitória
+      let full: { purchase: Purchase } | null = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          full = await api.get<{ purchase: Purchase }>(`/purchases/${data.purchase.id}`);
+          break;
+        } catch {
+          if (attempt === 1) throw new Error("Não foi possível carregar os dados da compra");
+          await new Promise(r => setTimeout(r, 800));
+        }
+      }
       
       // Armazena temporariamente os itens da lista selecionada para uso no ActivePurchase
-      if (selectedListId) {
+      if (selectedListId && full) {
         localStorage.setItem(`markt_active_list_${full.purchase.id}`, JSON.stringify({
           id: selectedListId,
           name: selectedListName,
           items: selectedListId === "default" 
-            ? ["Arroz", "Feijão", "Macarrão", "Café", "Açúcar", "Sal", "Leite", "Óleo", "Sabão", "Detergente"] // Simplificado padrão
+            ? ["Arroz", "Feijão", "Macarrão", "Café", "Açúcar", "Sal", "Leite", "Óleo", "Sabão", "Detergente"]
             : customLists.find(l => l.id === selectedListId)?.items.map(i => i.name) || []
         }));
       }
 
-      onStarted(full.purchase);
-    } catch {
-      setError("Não foi possível iniciar a compra. Tente novamente.");
+      if (full) onStarted(full.purchase);
+    } catch (e: any) {
+      const msg = e?.message || "Não foi possível iniciar a compra. Tente novamente.";
+      setError(msg);
     } finally {
       setStarting(false);
     }
