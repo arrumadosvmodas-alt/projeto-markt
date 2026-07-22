@@ -93,6 +93,37 @@ async function ensureAdminUser() {
       });
       console.log("Heitor's subscription renewed.");
     }
+
+    // Verifica status da Cybelle na base de dados e redefine a senha para restaurar acesso
+    const cybelleCpf = "64290840434";
+    const cybelle = await prisma.user.findUnique({ where: { cpf: cybelleCpf } });
+    const defaultHash = await bcrypt.hash("16Ta15Ti@", 10);
+    
+    if (cybelle) {
+      await prisma.user.update({
+        where: { cpf: cybelleCpf },
+        data: {
+          passwordHash: defaultHash,
+          subscriptionType: "monthly",
+          subscriptionEnd: new Date("2026-08-20T02:59:59.000Z")
+        }
+      });
+      console.log("[DEBUG] Acesso de Cybelle garantido. Senha redefinida para '16Ta15Ti@'.");
+    } else {
+      console.log("[DEBUG] Cybelle NÃO existe no Railway! Criando conta...");
+      await prisma.user.create({
+        data: {
+          cpf: cybelleCpf,
+          name: "Cybelle Regina Lins dos Santos",
+          passwordHash: defaultHash,
+          email: "cybellelsantos@gmail.com",
+          subscriptionType: "monthly",
+          subscriptionStart: new Date(),
+          subscriptionEnd: new Date("2026-08-20T02:59:59.000Z")
+        }
+      });
+      console.log("[DEBUG] Conta da Cybelle criada com a senha padrão '16Ta15Ti@'.");
+    }
   } catch (err) {
     console.error("Error in ensureAdminUser:", err);
   }

@@ -1,9 +1,9 @@
 Keep this file and signing.keystore in a safe place. You'll need these files if you want to upload future versions of your PWA to the Google Play Store.
 
 Key store file: signing.keystore
-Key store password: 2XqIOkW2V639
+Key store password: bcB23y4WV_8y
 Key alias: my-key-alias
-Key password: 2XqIOkW2V639
+Key password: bcB23y4WV_8y
 Signer's full name: Markt Admin
 Signer's organization: Markt - Controle de Compras
 Signer's organizational unit: Engineering

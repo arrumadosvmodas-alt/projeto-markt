@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "com.markt.app",
-        "sha256_cert_fingerprints": ["B1:24:04:86:D1:FE:9F:94:F3:84:66:43:6B:53:44:F1:B8:56:C8:3A:E2:AE:D0:E6:D2:69:36:A9:77:E9:8D:23"]
+        "package_name": "br.com.markto.twa",
+        "sha256_cert_fingerprints": ["DB:D9:B9:94:AD:F9:4A:4D:77:4F:32:FE:42:8D:B5:9B:B9:23:64:0D:66:81:CB:A8:BA:B4:C8:E3:67:92:07:C2"]
       }
     }]
