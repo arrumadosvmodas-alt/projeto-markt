@@ -2,41 +2,11 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, HTMLAttributes, ReactNo
 
 export function Logo({ className = "h-8 w-8" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#5c8a2e" />
-          <stop offset="100%" stopColor="#3f6212" />
-        </linearGradient>
-      </defs>
-      {/* Bolsa de compras estilizada que forma um M */}
-      <path
-        d="M6 10H26L23.5 24C23.2 25.7 21.7 27 20 27H12C10.3 27 8.8 25.7 8.5 24L6 10Z"
-        fill="url(#logo-gradient)"
-      />
-      {/* Alça que parece folha / arco superior */}
-      <path
-        d="M11 10C11 6.5 13.2 4 16 4C18.8 4 21 6.5 21 10"
-        stroke="#e0935a"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      {/* Detalhe interno da alça */}
-      <path
-        d="M13.5 10C13.5 7.8 14.6 6.5 16 6.5C17.4 6.5 18.5 7.8 18.5 10"
-        stroke="#fdfaf5"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      {/* Linhas do M central */}
-      <path
-        d="M10 15L13.5 21L16 17.5L18.5 21L22 15"
-        stroke="#fdfaf5"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <img
+      src="/logo.png"
+      alt="Markt Logo"
+      className={`object-contain rounded-xl ${className}`}
+    />
   );
 }
 
